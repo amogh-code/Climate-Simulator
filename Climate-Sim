@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Climate Model Graphs</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        label {
+            display: inline-block;
+            width: 300px;
+            margin-bottom: 10px;
+        }
+        input {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Climate Model Input Form</h1>
+    <form id="inputForm">
+        <label for="A_OCEAN">Ocean Heat Absorption Coefficient (A_OCEAN):</label>
+        <input type="number" id="A_OCEAN" name="A_OCEAN" value="0.2" step="0.01" required><br>
+        
+        <label for="A_LAND">Land Heat Absorption Coefficient (A_LAND):</label>
+        <input type="number" id="A_LAND" name="A_LAND" value="0.3" step="0.01" required><br>
+        
+        <label for="A_ICE">Sea Ice Heat Absorption Coefficient (A_ICE):</label>
+        <input type="number" id="A_ICE" name="A_ICE" value="0.1" step="0.01" required><br>
+        
+        <label for="ICE_MELT_RATE">Ice Melt Rate:</label>
+        <input type="number" id="ICE_MELT_RATE" name="ICE_MELT_RATE" value="0.05" step="0.01" required><br>
+        
+        <label for="TIME_STEPS">Time Steps (Years):</label>
+        <input type="number" id="TIME_STEPS" name="TIME_STEPS" value="100" required><br>
+        
+        <label for="wind_magnitude">Wind Magnitude (m/s):</label>
+        <input type="number" id="wind_magnitude" name="wind_magnitude" value="5" required><br>
+
+        <label for="greenhouse_gases">Greenhouse Gases (normalized):</label>
+        <input type="number" id="greenhouse_gases" name="greenhouse_gases" value="1" step="0.01" required><br>
+
+        <button type="submit">Generate Graphs</button>
+    </form>
+
+    <h2>Graphs</h2>
+    <div id="atmosphereTemp"></div>
+    <div id="oceanTemp"></div>
+    <div id="landTemp"></div>
+    <div id="iceVolume"></div>
+
+    <script>
+        document.getElementById('inputForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            // Get inputs from the form
+            const A_OCEAN = parseFloat(document.getElementById('A_OCEAN').value);
+            const A_LAND = parseFloat(document.getElementById('A_LAND').value);
+            const A_ICE = parseFloat(document.getElementById('A_ICE').value);
+            const ICE_MELT_RATE = parseFloat(document.getElementById('ICE_MELT_RATE').value);
+            const TIME_STEPS = parseInt(document.getElementById('TIME_STEPS').value);
+            const wind_magnitude = parseFloat(document.getElementById('wind_magnitude').value);
+            const greenhouse_gases = parseFloat(document.getElementById('greenhouse_gases').value);
+
+            // Constants
+            const C_ATMOSPHERE = 1;
+            const C_OCEAN = 10;
+            const C_LAND = 5;
+            let atmosphere_temp = 15;
+            let ocean_temp = 5;
+            let land_temp = 10;
+            let sea_ice_volume = 100;
+
+            // Arrays to store results
+            let atmosphere_temps = [];
+            let ocean_temps = [];
+            let land_temps = [];
+            let sea_ice_volumes = [];
+
+            // Simulation loop
+            for (let step = 0; step < TIME_STEPS; step++) {
+                let heat_from_atmosphere_to_ocean = A_OCEAN * (atmosphere_temp - ocean_temp) / C_OCEAN;
+                let heat_from_land_to_ocean = A_LAND * (land_temp - ocean_temp) / C_OCEAN;
+                let heat_from_ocean_to_land = A_LAND * (ocean_temp - land_temp) / C_LAND;
+
+                ocean_temp += heat_from_atmosphere_to_ocean + heat_from_land_to_ocean;
+                land_temp += heat_from_ocean_to_land;
+                atmosphere_temp += (wind_magnitude * 0.1) / C_ATMOSPHERE;
+
+                if (ocean_temp > 0) {
+                    let melted_ice = ICE_MELT_RATE * (ocean_temp - 0);
+                    sea_ice_volume -= melted_ice;
+                    sea_ice_volume = Math.max(sea_ice_volume, 0);
+                }
+
+                atmosphere_temps.push(atmosphere_temp);
+                ocean_temps.push(ocean_temp);
+                land_temps.push(land_temp);
+                sea_ice_volumes.push(sea_ice_volume);
+            }
+
+            // Plot the graphs using Plotly
+            Plotly.newPlot('atmosphereTemp', [{
+                x: Array.from({ length: TIME_STEPS }, (_, i) => i + 1),
+                y: atmosphere_temps,
+                type: 'scatter',
+                name: 'Atmosphere Temperature',
+                line: { color: 'red' }
+            }], {
+                title: 'Atmosphere Temperature Over Time',
+                xaxis: { title: 'Time Steps (Years)' },
+                yaxis: { title: 'Temperature (°C)' }
+            });
+
+            Plotly.newPlot('oceanTemp', [{
+                x: Array.from({ length: TIME_STEPS }, (_, i) => i + 1),
+                y: ocean_temps,
+                type: 'scatter',
+                name: 'Ocean Temperature',
+                line: { color: 'blue' }
+            }], {
+                title: 'Ocean Temperature Over Time',
+                xaxis: { title: 'Time Steps (Years)' },
+                yaxis: { title: 'Temperature (°C)' }
+            });
+
+            Plotly.newPlot('landTemp', [{
+                x: Array.from({ length: TIME_STEPS }, (_, i) => i + 1),
+                y: land_temps,
+                type: 'scatter',
+                name: 'Land Temperature',
+                line: { color: 'green' }
+            }], {
+                title: 'Land Temperature Over Time',
+                xaxis: { title: 'Time Steps (Years)' },
+                yaxis: { title: 'Temperature (°C)' }
+            });
+
+            Plotly.newPlot('iceVolume', [{
+                x: Array.from({ length: TIME_STEPS }, (_, i) => i + 1),
+                y: sea_ice_volumes,
+                type: 'scatter',
+                name: 'Sea Ice Volume',
+                line: { color: 'cyan' }
+            }], {
+                title: 'Sea Ice Volume Over Time',
+                xaxis: { title: 'Time Steps (Years)' },
+                yaxis: { title: 'Volume (arbitrary units)' }
+            });
+        });
+    </script>
+</body>
+</html>
