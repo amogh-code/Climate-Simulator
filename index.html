@@ -87,14 +87,29 @@
         .hidden {
             display: none;
         }
+
+        #dateTime {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 10;
+        }
     </style>
 </head>
 <body>
+    <h1>|| Jai Guru Dev ||</h1>
+    <h2>Anweshna 2025</h2>
+    <p style="text-align:center;">Done by Advaith, Hariprasad, and Amogh from Class 12 A, SSRVM North Bangalore</p>
+    <h2>Climate Simulator</h2>
+
+    <div id="dateTime"></div>
+
     <div id="settings">
         <button class="collapsible">Settings</button>
         <div class="content">
             <label for="darkModeToggle">Dark Mode</label>
             <input type="checkbox" id="darkModeToggle">
+            <br>
             <label for="deviceSelect">Select Device:</label>
             <select id="deviceSelect">
                 <option value="desktop">Desktop</option>
@@ -103,10 +118,6 @@
         </div>
     </div>
 
-    <h1>|| Jai Guru Dev ||</h1>
-    <h2>Anweshna 2025</h2>
-    <p style="text-align:center;">Done by Advaith, Hariprasad, and Amogh from Class 12 A, SSRVM North Bangalore</p>
-    <h2>Climate Simulator</h2>
     <div id="menu">
         <label for="A_OCEAN">Ocean Heat Absorption Coefficient (A_OCEAN):</label>
         <input type="range" id="A_OCEAN" name="A_OCEAN" min="0" max="1" value="0.2" step="0.01">
@@ -149,24 +160,23 @@
     <div class="graph-container">
         <div id="atmosphereTemp"></div>
         <p>Atmosphere Temperature Over Time: The graph shows the temperature change in the atmosphere due to various heat absorption coefficients and wind effects.</p>
-        <p><strong>Formula:</strong> \( T_{atmosphere} = T_{initial} + \text{change due to wind and other factors} \)</p>
+        <p><strong>Formula:</strong> \( T_{atmosphere} = T_{initial} + A_{OCEAN} \cdot t + wind\_magnitude \cdot random\_value \)</p>
 
         <div id="oceanTemp"></div>
         <p>Ocean Temperature Over Time: Displays how ocean temperatures rise due to heat transfer from the atmosphere and land.</p>
-        <p><strong>Formula:</strong> \( T_{ocean} = T_{initial} + \text{heat from atmosphere and land} \)</p>
+        <p><strong>Formula:</strong> \( T_{ocean} = T_{initial} + A_{LAND} \cdot t + greenhouse\_gases \cdot random\_value \)</p>
 
         <div id="landTemp"></div>
         <p>Land Temperature Over Time: Represents the land temperature changes influenced by ocean heat and other environmental factors.</p>
-        <p><strong>Formula:</strong> \( T_{land} = T_{initial} + \text{heat from ocean} \)</p>
+        <p><strong>Formula:</strong> \( T_{land} = T_{initial} + A_{ICE} \cdot t + wind\_magnitude \cdot random\_value \)</p>
 
         <div id="iceVolume"></div>
         <p>Sea Ice Volume Over Time: Illustrates how sea ice volume decreases due to rising ocean temperatures.</p>
-        <p><strong>Formula:</strong> \( V_{ice} = V_{initial} - \text{melted ice volume} \)</p>
+        <p><strong>Formula:</strong> \( V_{ice} = V_{initial} - (ICE\_MELT\_RATE \cdot t) \)</p>
     </div>
 
     <footer>
         <p>Climate Simulator © 2025</p>
-        <p id="dateTime"></p>
     </footer>
 
     <script>
@@ -214,17 +224,17 @@
         function updateSliderValue(sliderId, valueId) {
             const slider = document.getElementById(sliderId);
             const valueDisplay = document.getElementById(valueId);
-            valueDisplay.textContent = slider.value;
+            valueDisplay.innerText = slider.value;
         }
 
-        // Attach input event listeners to sliders
-        document.querySelectorAll('input[type=range]').forEach(slider => {
-            slider.addEventListener('input', () => {
-                updateSliderValue(slider.id, slider.id + '_value');
-            });
-        });
+        // Add event listeners to sliders
+        document.getElementById('A_OCEAN').addEventListener('input', () => updateSliderValue('A_OCEAN', 'A_OCEAN_value'));
+        document.getElementById('A_LAND').addEventListener('input', () => updateSliderValue('A_LAND', 'A_LAND_value'));
+        document.getElementById('A_ICE').addEventListener('input', () => updateSliderValue('A_ICE', 'A_ICE_value'));
+        document.getElementById('ICE_MELT_RATE').addEventListener('input', () => updateSliderValue('ICE_MELT_RATE', 'ICE_MELT_RATE_value'));
+        document.getElementById('wind_magnitude').addEventListener('input', () => updateSliderValue('wind_magnitude', 'wind_magnitude_value'));
+        document.getElementById('greenhouse_gases').addEventListener('input', () => updateSliderValue('greenhouse_gases', 'greenhouse_gases_value'));
 
-        // Graph generation logic
         document.getElementById('generateButton').addEventListener('click', function() {
             const A_OCEAN = parseFloat(document.getElementById('A_OCEAN').value);
             const A_LAND = parseFloat(document.getElementById('A_LAND').value);
@@ -235,9 +245,9 @@
             const greenhouse_gases = parseFloat(document.getElementById('greenhouse_gases').value);
 
             const time = Array.from({length: TIME_STEPS}, (_, i) => i);
-            const atmosphereTemp = time.map(t => A_OCEAN * t + wind_magnitude * Math.random());
-            const oceanTemp = time.map(t => A_LAND * t + greenhouse_gases * Math.random());
-            const landTemp = time.map(t => A_ICE * t + ICE_MELT_RATE * Math.random());
+            const atmosphereTemp = time.map(t => 15 + (A_OCEAN * t) + (wind_magnitude * Math.random()));
+            const oceanTemp = time.map(t => 20 + (A_LAND * t) + (greenhouse_gases * Math.random()));
+            const landTemp = time.map(t => 25 + (A_ICE * t) + (wind_magnitude * Math.random()));
             const iceVolume = time.map(t => 1 - (ICE_MELT_RATE * t / 100));
 
             Plotly.newPlot('atmosphereTemp', [{
@@ -245,7 +255,8 @@
                 y: atmosphereTemp,
                 type: 'scatter',
                 mode: 'lines+markers',
-                name: 'Atmosphere Temperature'
+                name: 'Atmosphere Temperature',
+                line: {color: 'blue'}
             }]);
 
             Plotly.newPlot('oceanTemp', [{
@@ -253,7 +264,8 @@
                 y: oceanTemp,
                 type: 'scatter',
                 mode: 'lines+markers',
-                name: 'Ocean Temperature'
+                name: 'Ocean Temperature',
+                line: {color: 'green'}
             }]);
 
             Plotly.newPlot('landTemp', [{
@@ -261,7 +273,8 @@
                 y: landTemp,
                 type: 'scatter',
                 mode: 'lines+markers',
-                name: 'Land Temperature'
+                name: 'Land Temperature',
+                line: {color: 'orange'}
             }]);
 
             Plotly.newPlot('iceVolume', [{
@@ -269,7 +282,8 @@
                 y: iceVolume,
                 type: 'scatter',
                 mode: 'lines+markers',
-                name: 'Sea Ice Volume'
+                name: 'Sea Ice Volume',
+                line: {color: 'purple'}
             }]);
 
             updateGraphColors(); // Update colors based on the dark mode
