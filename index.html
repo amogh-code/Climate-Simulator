@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Climate Simulator</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -159,19 +161,19 @@
 
         <div class="graph-container">
             <canvas id="atmosphereTemp"></canvas>
-            <p class="graph-description" id="atmosphereDesc"></p>
+            <p class="graph-description" id="atmosphereDesc">Atmospheric temperature over time based on user inputs.</p>
         </div>
         <div class="graph-container">
             <canvas id="oceanTemp"></canvas>
-            <p class="graph-description" id="oceanDesc"></p>
+            <p class="graph-description" id="oceanDesc">Ocean temperature changes influenced by heat absorption coefficients.</p>
         </div>
         <div class="graph-container">
             <canvas id="landTemp"></canvas>
-            <p class="graph-description" id="landDesc"></p>
+            <p class="graph-description" id="landDesc">Land temperature variations based on environmental factors.</p>
         </div>
         <div class="graph-container">
             <canvas id="iceVolume"></canvas>
-            <p class="graph-description" id="iceDesc"></p>
+            <p class="graph-description" id="iceDesc">Sea ice volume changes over time due to melting rates.</p>
         </div>
 
         <div class="info-section">
@@ -179,16 +181,16 @@
             <p>Climate change is a long-term shift in global weather patterns and average temperatures. This simulator helps visualize the complex interactions between different components of the Earth's climate system.</p>
             <p>How to use this tool:</p>
             <ul>
-                <li>Adjust the sliders to change various climate parameters</li>
-                <li>Click "Generate Graphs" to see how these changes affect the climate over time</li>
-                <li>Observe how different factors interact and influence each other</li>
+                <li>Adjust the sliders to change various climate parameters.</li>
+                <li>Click "Generate Graphs" to see how these changes affect the climate over time.</li>
+                <li>Observe how different factors interact and influence each other.</li>
             </ul>
             <p>Key Facts:</p>
             <ul>
-                <li>The Earth's average temperature has increased by about 1°C since pre-industrial times</li>
-                <li>Sea levels are rising at a rate of about 3.3 mm per year</li>
-                <li>Arctic sea ice is declining at a rate of 13% per decade</li>
-                <li>Human activities, particularly the burning of fossil fuels, are the primary driver of current climate change</li>
+                <li>The Earth's average temperature has increased by about 1°C since pre-industrial times.</li>
+                <li>Sea levels are rising at a rate of about 3.3 mm per year.</li>
+                <li>Arctic sea ice is declining at a rate of 13% per decade.</li>
+                <li>Human activities, particularly the burning of fossil fuels, are the primary driver of current climate change.</li>
             </ul>
         </div>
     </div>
@@ -262,10 +264,10 @@
             drawGraph('iceVolume', sea_ice_volumes, 'Sea Ice Volume (Million km³)', 'rgba(153, 102, 255, 0.8)');
 
             // Update graph descriptions
-            updateDescription('atmosphereDesc', atmosphere_temps, 'Atmospheric temperature');
-            updateDescription('oceanDesc', ocean_temps, 'Ocean temperature');
-            updateDescription('landDesc', land_temps, 'Land temperature');
-            updateDescription('iceDesc', sea_ice_volumes, 'Sea ice volume', true);
+            document.getElementById('atmosphereDesc').innerText = "Atmospheric temperature over time based on user inputs.";
+            document.getElementById('oceanDesc').innerText = "Ocean temperature changes influenced by heat absorption coefficients.";
+            document.getElementById('landDesc').innerText = "Land temperature variations based on environmental factors.";
+            document.getElementById('iceDesc').innerText = "Sea ice volume changes over time due to melting rates.";
         }
 
         function drawGraph(canvasId, data, label, color) {
@@ -339,4 +341,29 @@
             ctx.fillText(minValue.toFixed(2), padding - 5, height - padding);
 
             // Draw grid lines
-            ctx.strokeStyle = document.body.classList.contains('dark-mode')
+            ctx.strokeStyle = document.body.classList.contains('dark-mode') ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+            ctx.lineWidth = 1;
+            for (let i = 1; i < 5; i++) {
+                const y = padding + (height - 2 * padding) * i / 5;
+                ctx.beginPath();
+                ctx.moveTo(padding, y);
+                ctx.lineTo(width - padding, y);
+                ctx.stroke();
+            }
+            for (let i = 1; i < 5; i++) {
+                const x = padding + (width - 2 * padding) * i / 5;
+                ctx.beginPath();
+                ctx.moveTo(x, padding);
+                ctx.lineTo(x, height - padding);
+                ctx.stroke();
+            }
+        }
+
+        document.getElementById('inputForm').addEventListener('submit', generateGraphs);
+        setInterval(updateDateTime, 1000);
+
+        // Generate graphs on page load
+        generateGraphs(new Event('submit'));
+    </script>
+</body>
+</html>
