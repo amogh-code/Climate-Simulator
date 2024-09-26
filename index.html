@@ -6,241 +6,135 @@
     <title>Climate Simulator</title>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <style>
-        /* General styles for the body */
         body {
             font-family: Arial, sans-serif;
+            background-color: #f0f8ff; /* Light background color */
             margin: 0;
-            padding: 0;
-            background-color: white;
-            color: black;
-            transition: background-color 0.5s, color 0.5s;
+            padding: 20px;
+            border: 5px solid #4CAF50; /* Green border around the body */
+            border-radius: 10px;
+            transition: background-color 0.3s, color 0.3s; /* Smooth transition for dark/light mode */
         }
 
-        /* Header styles */
-        header {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px;
-            background-color: #f0f0f0;
-            border-bottom: 2px solid #ccc;
-            position: relative;
+        h1 {
+            color: #333; /* Dark text color */
         }
 
-        /* Date and time display */
-        #dateTime {
-            font-size: 14px;
-        }
-
-        /* Settings menu styling */
-        #settings {
-            position: relative;
-            display: inline-block;
-        }
-
-        #deviceMenu {
-            cursor: pointer;
-            padding: 5px;
-            border: 1px solid #007bff;
-            border-radius: 5px;
-            background-color: #fff;
-            transition: background-color 0.3s;
-        }
-
-        /* Dropdown menu content styling */
-        .menu-content {
-            display: none;
-            position: absolute;
-            background-color: #fff;
-            border: 1px solid #ccc;
-            z-index: 1;
-            padding: 10px;
-            border-radius: 5px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        /* Menu links styling */
-        .menu-content a {
-            color: black;
-            padding: 10px;
-            text-decoration: none;
-            display: block;
-        }
-
-        .menu-content a:hover {
-            background-color: #ddd;
-        }
-
-        /* Button styles */
-        #toggleButton {
-            margin-left: 10px;
-            padding: 5px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        /* Form styles */
-        #inputForm {
-            margin: 20px;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* Slider label styles */
-        .slider-label {
-            display: inline-block;
-            width: 300px;
-            margin-bottom: 10px;
-        }
-
-        /* Graph container styling */
         .graph-container {
-            margin: 20px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+            border: 2px solid #008CBA; /* Blue border for graph containers */
+            border-radius: 10px;
             padding: 10px;
+            margin: 20px 0;
+            background-color: rgba(255, 255, 255, 0.8); /* White background with transparency */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s; /* Animation for graph containers */
         }
 
-        /* Dark mode styles */
+        .graph-container:hover {
+            transform: scale(1.02); /* Slight zoom effect on hover */
+        }
+
+        label {
+            font-weight: bold;
+            margin: 10px 0;
+            display: block;
+            color: #555; /* Darker label color */
+        }
+
+        input[type="range"], input[type="number"] {
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        .settings {
+            background-color: #e0f7fa; /* Light cyan background for settings */
+            border: 2px solid #00695c; /* Darker teal border */
+            border-radius: 10px;
+            padding: 15px;
+            transition: background-color 0.3s; /* Transition for settings box */
+        }
+
+        .toggle-button {
+            margin: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s; /* Animation for toggle buttons */
+        }
+
+        .toggle-button:hover {
+            transform: scale(1.05); /* Slight zoom effect on hover */
+        }
+
         .dark-mode {
-            background-color: #121212;
-            color: #e0e0e0;
+            background-color: #333; /* Dark background for dark mode */
+            color: white; /* Light text color */
         }
 
-        .dark-mode .graph-container {
-            border: 1px solid #444;
-        }
-
-        .dark-mode .menu-content {
-            background-color: #222;
-        }
-
-        .dark-mode .menu-content a {
-            color: #e0e0e0;
-        }
-
-        /* Responsive design */
-        @media (max-width: 600px) {
-            body {
-                font-size: 14px;
-            }
-
-            .slider-label {
-                width: 100%;
-            }
-
-            #inputForm {
-                margin: 10px;
-            }
+        .dark-mode .settings {
+            background-color: #444; /* Darker background for settings in dark mode */
+            border: 2px solid #555; /* Lighter border */
         }
     </style>
 </head>
 <body>
-    <header>
-        <div id="dateTime"></div>
-        <div id="settings">
-            <span id="deviceMenu" onclick="toggleMenu()">Settings</span>
-            <div class="menu-content" id="menuContent">
-                <label for="deviceSelector">Select Device:</label>
-                <select id="deviceSelector" onchange="updateLayout()">
-                    <option value="desktop">Desktop</option>
-                    <option value="mobile">Mobile</option>
-                </select>
-                <button id="toggleButton" onclick="toggleDarkMode()">Toggle Dark Mode</button>
-            </div>
-        </div>
-    </header>
+    <h1>Climate Simulator</h1>
+    <div class="settings" id="settingsBox">
+        <label for="A_OCEAN">Area of Ocean (in million km²):</label>
+        <input type="number" id="A_OCEAN" value="361" step="1">
+        
+        <label for="A_LAND">Area of Land (in million km²):</label>
+        <input type="number" id="A_LAND" value="149" step="1">
+        
+        <label for="A_ICE">Area of Ice (in million km²):</label>
+        <input type="number" id="A_ICE" value="16" step="1">
+        
+        <label for="ICE_MELT_RATE">Ice Melt Rate (in million km³/year):</label>
+        <input type="number" id="ICE_MELT_RATE" value="100" step="1">
+        
+        <label for="TIME_STEPS">Time Steps (years):</label>
+        <input type="number" id="TIME_STEPS" value="100" step="1">
+        
+        <label for="wind_magnitude">Wind Magnitude (0-10):</label>
+        <input type="range" id="wind_magnitude" min="0" max="10" value="5">
+        
+        <label for="greenhouse_gases">Greenhouse Gases (0-10):</label>
+        <input type="range" id="greenhouse_gases" min="0" max="10" value="5">
+        
+        <button class="toggle-button" id="toggleButton">Toggle Dark/Light Mode</button>
+    </div>
 
-    <h3 style="font-size: 12px; text-align: center;">|| Jai Guru Dev ||</h3>
-    <h1 style="text-align: center;">Anweshna 2025</h1>
-    <h3 style="text-align: center;">Done by Advaith, Hariprasad, and Amogh from Class 12 A SSRVM North Bangalore</h3>
-    <h2 style="text-align: center;">Climate Simulator</h2>
-
-    <!-- Input form for climate parameters -->
-    <form id="inputForm">
-        <div class="slider-container">
-            <label class="slider-label">Ocean Heat Absorption Coefficient (A_OCEAN): 
-                <input type="range" min="0" max="1" value="0.2" step="0.01" id="A_OCEAN" oninput="updateValue('A_OCEAN')">
-                <span id="A_OCEAN_value">0.20</span>
-            </label>
-            <label class="slider-label">Land Heat Absorption Coefficient (A_LAND): 
-                <input type="range" min="0" max="1" value="0.3" step="0.01" id="A_LAND" oninput="updateValue('A_LAND')">
-                <span id="A_LAND_value">0.30</span>
-            </label>
-            <label class="slider-label">Sea Ice Heat Absorption Coefficient (A_ICE): 
-                <input type="range" min="0" max="1" value="0.1" step="0.01" id="A_ICE" oninput="updateValue('A_ICE')">
-                <span id="A_ICE_value">0.10</span>
-            </label>
-            <label class="slider-label">Ice Melt Rate: 
-                <input type="range" min="0" max="1" value="0.05" step="0.01" id="ICE_MELT_RATE" oninput="updateValue('ICE_MELT_RATE')">
-                <span id="ICE_MELT_RATE_value">0.05</span>
-            </label>
-            <label class="slider-label">Time Steps (Years): 
-                <input type="range" min="1" max="200" value="100" id="TIME_STEPS" oninput="updateValue('TIME_STEPS')">
-                <span id="TIME_STEPS_value">100</span>
-            </label>
-            <label class="slider-label">Wind Magnitude (m/s): 
-                <input type="range" min="0" max="20" value="5" id="wind_magnitude" oninput="updateValue('wind_magnitude')">
-                <span id="wind_magnitude_value">5</span>
-            </label>
-            <label class="slider-label">Greenhouse Gases (normalized): 
-                <input type="range" min="0" max="5" value="1" step="0.01" id="greenhouse_gases" oninput="updateValue('greenhouse_gases')">
-                <span id="greenhouse_gases_value">1.00</span>
-            </label>
-        </div>
-        <button type="submit">Generate Graphs</button>
-    </form>
-
-    <!-- Graph containers -->
     <div class="graph-container" id="atmosphereTemp"></div>
     <div class="graph-container" id="oceanTemp"></div>
     <div class="graph-container" id="landTemp"></div>
     <div class="graph-container" id="iceVolume"></div>
 
+    <div id="dateTime" style="text-align:center; font-weight:bold; color:#333;"></div>
+
     <script>
-        // Update date and time every second
+        // Function to update the date and time display
         function updateDateTime() {
             const now = new Date();
-            document.getElementById('dateTime').innerText = now.toLocaleString();
+            const dateTimeDisplay = now.toLocaleString();
+            document.getElementById('dateTime').innerText = dateTimeDisplay;
         }
 
-        // Update the value display for each slider
-        function updateValue(sliderId) {
-            const sliderValue = document.getElementById(sliderId).value;
-            document.getElementById(sliderId + '_value').innerText = parseFloat(sliderValue).toFixed(2);
-        }
-
-        // Toggle the settings menu
-        function toggleMenu() {
-            const menuContent = document.getElementById("menuContent");
-            menuContent.style.display = menuContent.style.display === "block" ? "none" : "block";
-        }
-
-        // Toggle dark mode
-        function toggleDarkMode() {
+        // Function to toggle dark and light mode
+        document.getElementById('toggleButton').addEventListener('click', () => {
             document.body.classList.toggle('dark-mode');
-            const button = document.getElementById('toggleButton');
-            button.innerText = document.body.classList.contains('dark-mode') ? 'Toggle Light Mode' : 'Toggle Dark Mode';
-        }
+        });
 
-        // Update layout based on the selected device
+        // Function to update layout based on screen size
         function updateLayout() {
-            const selectedDevice = document.getElementById('deviceSelector').value;
-            if (selectedDevice === 'mobile') {
-                document.body.style.fontSize = '14px';
-                document.querySelectorAll('.slider-label').forEach(label => {
-                    label.style.width = '100%'; // Full width for mobile
-                });
+            if (window.innerWidth < 768) {
+                document.body.style.fontSize = '14px'; // Smaller font size for mobile
                 // Adjust graph sizes for mobile
                 document.querySelectorAll('.graph-container').forEach(container => {
                     container.style.width = '90%';
                     container.style.margin = '0 auto';
                 });
             } else {
-                document.body.style.fontSize = '16px';
+                document.body.style.fontSize = '16px'; // Larger font size for desktop
                 // Adjust graph sizes for desktop
                 document.querySelectorAll('.graph-container').forEach(container => {
                     container.style.width = '80%';
@@ -304,10 +198,7 @@
             }], {
                 title: 'Atmospheric Temperature Over Time',
                 xaxis: { title: 'Time (Years)' },
-                yaxis: { title: 'Temperature (°C)' },
-                plot_bgcolor: 'rgba(255, 255, 255, 0.8)',
-                paper_bgcolor: 'rgba(255, 255, 255, 0.8)',
-                font: { color: 'black' }
+                yaxis: { title: 'Temperature (°C)' }
             });
 
             Plotly.newPlot('oceanTemp', [{
@@ -319,10 +210,7 @@
             }], {
                 title: 'Ocean Temperature Over Time',
                 xaxis: { title: 'Time (Years)' },
-                yaxis: { title: 'Temperature (°C)' },
-                plot_bgcolor: 'rgba(255, 255, 255, 0.8)',
-                paper_bgcolor: 'rgba(255, 255, 255, 0.8)',
-                font: { color: 'black' }
+                yaxis: { title: 'Temperature (°C)' }
             });
 
             Plotly.newPlot('landTemp', [{
@@ -334,10 +222,7 @@
             }], {
                 title: 'Land Temperature Over Time',
                 xaxis: { title: 'Time (Years)' },
-                yaxis: { title: 'Temperature (°C)' },
-                plot_bgcolor: 'rgba(255, 255, 255, 0.8)',
-                paper_bgcolor: 'rgba(255, 255, 255, 0.8)',
-                font: { color: 'black' }
+                yaxis: { title: 'Temperature (°C)' }
             });
 
             Plotly.newPlot('iceVolume', [{
@@ -349,21 +234,24 @@
             }], {
                 title: 'Sea Ice Volume Over Time',
                 xaxis: { title: 'Time (Years)' },
-                yaxis: { title: 'Volume (Million km³)' },
-                plot_bgcolor: 'rgba(255, 255, 255, 0.8)',
-                paper_bgcolor: 'rgba(255, 255, 255, 0.8)',
-                font: { color: 'black' }
+                yaxis: { title: 'Volume (million km³)' }
             });
         }
 
-        // Attach the event listener to the form
-        document.getElementById('inputForm').addEventListener('submit', generateGraphs);
+        // Event listener for input changes
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', generateGraphs);
+        });
 
-        // Start updating the date and time
+        // Initial graph generation
+        generateGraphs(new Event('input')); // Trigger an initial update
+
+        // Update date and time every second
         setInterval(updateDateTime, 1000);
 
-        // Initial layout setup
-        updateLayout();
+        // Update layout on window resize
+        window.addEventListener('resize', updateLayout);
+        updateLayout(); // Initial layout setup
     </script>
 </body>
 </html>
