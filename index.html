@@ -245,7 +245,7 @@
             const atmosphereTemp = time.map(t => 15 + (A_OCEAN * t) + (wind_magnitude * Math.random()));
             const oceanTemp = time.map(t => 20 + (A_LAND * t) + (greenhouse_gases * Math.random()));
             const landTemp = time.map(t => 25 + (A_ICE * t) + (wind_magnitude * Math.random()));
-            const iceVolume = time.map(t => 1 - (ICE_MELT_RATE * t / 100));
+            const iceVolume = time.map(t => Math.max(0, 1 - (ICE_MELT_RATE * t / 100))); // Ensuring ice volume doesn't go negative
 
             Plotly.newPlot('atmosphereTemp', [{
                 x: time,
