@@ -193,16 +193,20 @@
             const textColor = isDarkMode ? '#ffffff' : '#000000';
             
             Plotly.restyle('atmosphereTemp', {
-                'marker.color': textColor
+                'marker.color': isDarkMode ? 'cyan' : 'blue',
+                'line.color': isDarkMode ? 'cyan' : 'blue'
             });
             Plotly.restyle('oceanTemp', {
-                'marker.color': textColor
+                'marker.color': isDarkMode ? 'lightgreen' : 'green',
+                'line.color': isDarkMode ? 'lightgreen' : 'green'
             });
             Plotly.restyle('landTemp', {
-                'marker.color': textColor
+                'marker.color': isDarkMode ? 'orange' : 'orange',
+                'line.color': isDarkMode ? 'orange' : 'orange'
             });
             Plotly.restyle('iceVolume', {
-                'marker.color': textColor
+                'marker.color': isDarkMode ? 'magenta' : 'purple',
+                'line.color': isDarkMode ? 'magenta' : 'purple'
             });
         }
 
@@ -220,7 +224,7 @@
             });
         }
 
-        // Update the slider values
+        // Update slider values
         function updateSliderValue(sliderId, valueId) {
             const slider = document.getElementById(sliderId);
             const valueDisplay = document.getElementById(valueId);
