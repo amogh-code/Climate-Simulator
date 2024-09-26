@@ -185,29 +185,49 @@
                 sea_ice_volumes.push(sea_ice_volume);
             }
 
-            drawGraph('atmosphereTemp', atmosphere_temps, 'Atmospheric Temperature', 'red');
-            drawGraph('oceanTemp', ocean_temps, 'Ocean Temperature', 'blue');
-            drawGraph('landTemp', land_temps, 'Land Temperature', 'green');
-            drawGraph('iceVolume', sea_ice_volumes, 'Sea Ice Volume', 'cyan');
+            drawGraph('atmosphereTemp', atmosphere_temps, 'Atmospheric Temperature (°C)', 'red');
+            drawGraph('oceanTemp', ocean_temps, 'Ocean Temperature (°C)', 'blue');
+            drawGraph('landTemp', land_temps, 'Land Temperature (°C)', 'green');
+            drawGraph('iceVolume', sea_ice_volumes, 'Sea Ice Volume (Million km³)', 'cyan');
         }
 
         function drawGraph(canvasId, data, label, color) {
             const canvas = document.getElementById(canvasId);
             const ctx = canvas.getContext('2d');
+            
+            // Set canvas size
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            
             const width = canvas.width;
             const height = canvas.height;
+            const padding = 40;
 
             ctx.clearRect(0, 0, width, height);
+            
+            const minValue = Math.min(...data);
+            const maxValue = Math.max(...data);
+            const valueRange = maxValue - minValue;
+
+            // Draw axes
+            ctx.beginPath();
+            ctx.moveTo(padding, padding);
+            ctx.lineTo(padding, height - padding);
+            ctx.lineTo(width - padding, height - padding);
+            ctx.strokeStyle = 'black';
+            ctx.stroke();
+
+            // Draw graph
+            ctx.beginPath();
             ctx.strokeStyle = color;
             ctx.lineWidth = 2;
-            ctx.beginPath();
 
-            const xStep = width / (data.length - 1);
-            const yScale = height / (Math.max(...data) - Math.min(...data));
+            const xStep = (width - 2 * padding) / (data.length - 1);
+            const yScale = (height - 2 * padding) / valueRange;
 
             for (let i = 0; i < data.length; i++) {
-                const x = i * xStep;
-                const y = height - (data[i] - Math.min(...data)) * yScale;
+                const x = padding + i * xStep;
+                const y = height - padding - (data[i] - minValue) * yScale;
                 if (i === 0) {
                     ctx.moveTo(x, y);
                 } else {
@@ -220,13 +240,27 @@
             // Add labels
             ctx.fillStyle = 'black';
             ctx.font = '14px Arial';
-            ctx.fillText(label, 10, 20);
-            ctx.fillText('Time (Years)', width - 80, height - 10);
-            ctx.fillText('Value', 10, height - 10);
+            ctx.textAlign = 'center';
+            ctx.fillText(label, width / 2, 20);
+            ctx.fillText('Time (Years)', width / 2, height - 10);
+            
+            ctx.save();
+            ctx.rotate(-Math.PI / 2);
+            ctx.textAlign = 'center';
+            ctx.fillText('Value', -height / 2, 15);
+            ctx.restore();
+
+            // Add scale
+            ctx.textAlign = 'right';
+            ctx.fillText(maxValue.toFixed(2), padding - 5, padding);
+            ctx.fillText(minValue.toFixed(2), padding - 5, height - padding);
         }
 
         document.getElementById('inputForm').addEventListener('submit', generateGraphs);
         setInterval(updateDateTime, 1000);
+
+        // Generate graphs on page load
+        generateGraphs(new Event('submit'));
     </script>
 </body>
 </html>
