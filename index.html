@@ -121,7 +121,7 @@
             <output>0.05</output><br>
 
             <label for="TIME_STEPS" class="form-slider-label">Time Steps (Years):</label>
-            <input type="range" class="form-slider" id="TIME_STEPS" name="TIME_STEPS" min="1" max="500" value="100" oninput="this.nextElementSibling.value = this.value">
+            <input type="range" class="form-slider" id="TIME_STEPS" name="TIME_STEPS" min="1" max="1000" value="100" oninput="this.nextElementSibling.value = this.value">
             <output>100</output><br>
 
             <label for="wind_magnitude" class="form-slider-label">Wind Magnitude (m/s):</label>
@@ -186,10 +186,11 @@
             let landTemp = [];
             let iceVolume = [];
 
+            // Simulation logic for each year
             for (let year = 0; year < TIME_STEPS; year++) {
-                atmosphereTemp.push(A_OCEAN * year + greenhouse_gases * 0.5); // Simple linear model
-                oceanTemp.push(A_LAND * year + wind_magnitude * 0.3); // Another simple model
-                landTemp.push(A_ICE * year + 20); // Base temperature + linear increase
+                atmosphereTemp.push(A_OCEAN * greenhouse_gases * year * 0.5 + 15); // Base temperature + linear increase
+                oceanTemp.push(A_LAND * year * 0.3 + 15); // Ocean temp affected by land heat absorption
+                landTemp.push(A_ICE * year * 0.2 + 20); // Land temp increase based on ice absorption
                 iceVolume.push(Math.max(0, 100 - ICE_MELT_RATE * year)); // Decreasing ice volume
             }
 
@@ -199,24 +200,28 @@
                     y: atmosphereTemp,
                     mode: 'lines+markers',
                     name: 'Atmosphere Temperature',
+                    line: { color: '#ff5733' }
                 },
                 {
                     x: Array.from({ length: TIME_STEPS }, (_, i) => i + 1),
                     y: oceanTemp,
                     mode: 'lines+markers',
                     name: 'Ocean Temperature',
+                    line: { color: '#33c1ff' }
                 },
                 {
                     x: Array.from({ length: TIME_STEPS }, (_, i) => i + 1),
                     y: landTemp,
                     mode: 'lines+markers',
                     name: 'Land Temperature',
+                    line: { color: '#ff33c1' }
                 },
                 {
                     x: Array.from({ length: TIME_STEPS }, (_, i) => i + 1),
                     y: iceVolume,
                     mode: 'lines+markers',
                     name: 'Ice Volume',
+                    line: { color: '#33ff57' }
                 }
             ];
 
@@ -226,9 +231,15 @@
                     title: 'Years',
                 },
                 yaxis: {
-                    title: 'Values',
+                    title: 'Temperature / Volume',
+                    range: [0, 120], // Adjust range as necessary
                 },
-                showlegend: true
+                showlegend: true,
+                plot_bgcolor: document.body.classList.contains('dark-mode') ? '#1e1e1e' : '#ffffff',
+                paper_bgcolor: document.body.classList.contains('dark-mode') ? '#1e1e1e' : '#ffffff',
+                font: {
+                    color: document.body.classList.contains('dark-mode') ? '#ffffff' : '#000000',
+                }
             };
 
             Plotly.newPlot('atmosphereTemp', [traces[0]], layout);
