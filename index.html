@@ -368,7 +368,7 @@
             ctx.textAlign = 'right';
             for (let i = 0; i <= 5; i++) {
                 const y = padding + (height - 2 * padding) * i / 5;
-                const value = maxValue * i / 5;
+                const value = minValue + (valueRange * i / 5);
                 ctx.fillText(value.toFixed(2), padding - 10, y + 3);
             }
         }
