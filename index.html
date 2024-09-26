@@ -160,19 +160,15 @@
     <div class="graph-container">
         <div id="atmosphereTemp"></div>
         <p>Atmosphere Temperature Over Time: The graph shows the temperature change in the atmosphere due to various heat absorption coefficients and wind effects.</p>
-        <p><strong>Formula:</strong> \( T_{atmosphere} = T_{initial} + A_{OCEAN} \cdot t + wind\_magnitude \cdot random\_value \)</p>
 
         <div id="oceanTemp"></div>
         <p>Ocean Temperature Over Time: Displays how ocean temperatures rise due to heat transfer from the atmosphere and land.</p>
-        <p><strong>Formula:</strong> \( T_{ocean} = T_{initial} + A_{LAND} \cdot t + greenhouse\_gases \cdot random\_value \)</p>
 
         <div id="landTemp"></div>
         <p>Land Temperature Over Time: Represents the land temperature changes influenced by ocean heat and other environmental factors.</p>
-        <p><strong>Formula:</strong> \( T_{land} = T_{initial} + A_{ICE} \cdot t + wind\_magnitude \cdot random\_value \)</p>
 
         <div id="iceVolume"></div>
         <p>Sea Ice Volume Over Time: Illustrates how sea ice volume decreases due to rising ocean temperatures.</p>
-        <p><strong>Formula:</strong> \( V_{ice} = V_{initial} - (ICE\_MELT\_RATE \cdot t) \)</p>
     </div>
 
     <footer>
@@ -189,9 +185,6 @@
         // Update the graph colors
         function updateGraphColors() {
             const isDarkMode = document.body.classList.contains('dark-mode');
-            const graphBackgroundColor = isDarkMode ? '#121212' : '#ffffff';
-            const textColor = isDarkMode ? '#ffffff' : '#000000';
-            
             Plotly.restyle('atmosphereTemp', {
                 'marker.color': isDarkMode ? 'cyan' : 'blue',
                 'line.color': isDarkMode ? 'cyan' : 'blue'
@@ -303,6 +296,17 @@
         // Update the date and time every second
         setInterval(updateDateTime, 1000);
         updateDateTime(); // Initial call
+
+        // Handle device selection
+        document.getElementById('deviceSelect').addEventListener('change', function() {
+            if (this.value === 'mobile') {
+                document.body.style.fontSize = '14px';
+                document.querySelector('.graph-container').style.width = '100%';
+            } else {
+                document.body.style.fontSize = '16px';
+                document.querySelector('.graph-container').style.width = '90%';
+            }
+        });
     </script>
 </body>
 </html>
