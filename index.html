@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Climate Simulator</title>
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -356,6 +354,22 @@
                 ctx.moveTo(x, padding);
                 ctx.lineTo(x, height - padding);
                 ctx.stroke();
+            }
+
+            // Add X and Y axis coordinates
+            ctx.fillStyle = document.body.classList.contains('dark-mode') ? '#fff' : '#333';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'center';
+            for (let i = 0; i <= 5; i++) {
+                const x = padding + (width - 2 * padding) * i / 5;
+                const y = height - padding + 15;
+                ctx.fillText((i * TIME_STEPS / 5).toFixed(0), x, y);
+            }
+            ctx.textAlign = 'right';
+            for (let i = 0; i <= 5; i++) {
+                const y = padding + (height - 2 * padding) * i / 5;
+                const value = maxValue - (valueRange * i / 5);
+                ctx.fillText(value.toFixed(2), padding - 10, y + 3);
             }
         }
 
