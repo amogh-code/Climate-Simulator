@@ -75,7 +75,7 @@
         #darkModeToggle {
             position: absolute;
             top: 20px;
-            right: 20px;
+            right: 100px;
             cursor: pointer;
             background-color: #007bff;
             color: white;
@@ -96,7 +96,7 @@
     
     <button id="darkModeToggle" onclick="toggleDarkMode()">Toggle Dark Mode</button>
 
-    <h1>|| Jai Guru Dev ||</h1>
+    <h1 style="font-size: 18px;">|| Jai Guru Dev ||</h1>
     <h2>Anweshna 2025</h2>
     <h3>Done by Advaith, Hariprasad, and Amogh from Class 12A SSRVM North Bangalore</h3>
     <h2>Climate Simulator</h2>
@@ -188,10 +188,10 @@
 
             // Simulation logic for each year
             for (let year = 0; year < TIME_STEPS; year++) {
-                atmosphereTemp.push(A_OCEAN * greenhouse_gases * year * 0.5 + 15); // Base temperature + linear increase
-                oceanTemp.push(A_LAND * year * 0.3 + 15); // Ocean temp affected by land heat absorption
-                landTemp.push(A_ICE * year * 0.2 + 20); // Land temp increase based on ice absorption
-                iceVolume.push(Math.max(0, 100 - ICE_MELT_RATE * year)); // Decreasing ice volume
+                atmosphereTemp.push(15 + A_OCEAN * greenhouse_gases * year * 0.1); // Atmospheric heating
+                oceanTemp.push(15 + A_LAND * year * 0.05 + (0.1 * greenhouse_gases)); // Ocean heating with GHG
+                landTemp.push(20 + A_ICE * year * 0.2); // Land heating with ice influence
+                iceVolume.push(Math.max(0, 100 - ICE_MELT_RATE * year)); // Ice melting over years
             }
 
             const traces = [
@@ -231,7 +231,7 @@
                     title: 'Years',
                 },
                 yaxis: {
-                    title: 'Temperature / Volume',
+                    title: 'Temperature (°C) / Volume (km³)',
                     range: [0, 120], // Adjust range as necessary
                 },
                 showlegend: true,
