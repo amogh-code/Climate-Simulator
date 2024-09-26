@@ -12,6 +12,7 @@
             color: #333;
             margin: 0;
             padding: 0;
+            transition: background-color 0.3s, color 0.3s;
         }
         .container {
             width: 80%;
@@ -21,10 +22,6 @@
         .dark-mode {
             background-color: #2c2c2c;
             color: #e0e0e0;
-        }
-        .dark-mode button {
-            background-color: #444;
-            color: #fff;
         }
         header {
             display: flex;
@@ -44,6 +41,10 @@
         }
         .graph-container {
             margin-top: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            background-color: #fff;
+            border-radius: 8px;
         }
         button {
             padding: 10px 20px;
@@ -52,9 +53,25 @@
             border: none;
             border-radius: 4px;
             cursor: pointer;
+            transition: background-color 0.3s;
         }
         button:hover {
             background-color: #45a049;
+        }
+        .menu-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        .dark-mode .menu-content {
+            background-color: #444;
+        }
+        .menu-content select, .menu-content button {
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -64,7 +81,7 @@
             <div id="dateTime"></div>
             <div id="settings">
                 <span id="deviceMenu" onclick="toggleMenu()">Settings</span>
-                <div class="menu-content" id="menuContent" style="display: none;">
+                <div class="menu-content" id="menuContent">
                     <label for="deviceSelector">Select Device:</label>
                     <select id="deviceSelector" onchange="updateLayout()">
                         <option value="desktop">Desktop</option>
