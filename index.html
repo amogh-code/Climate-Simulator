@@ -40,6 +40,10 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             margin-bottom: 30px;
         }
+        .dark-mode .slider-container {
+            background-color: #3c3c3c;
+            color: #e0e0e0;
+        }
         .slider-label {
             display: flex;
             justify-content: space-between;
@@ -52,6 +56,9 @@
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             padding: 20px;
             transition: transform 0.3s ease;
+        }
+        .dark-mode .graph-container {
+            background-color: #3c3c3c;
         }
         .graph-container:hover {
             transform: translateY(-5px);
@@ -86,6 +93,21 @@
         }
         .dark-mode h1, .dark-mode h2, .dark-mode h3 {
             color: #e0e0e0;
+        }
+        .graph-description {
+            margin-top: 10px;
+            font-style: italic;
+            text-align: center;
+        }
+        .info-section {
+            margin-top: 50px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .dark-mode .info-section {
+            background-color: #3c3c3c;
         }
     </style>
 </head>
@@ -137,15 +159,37 @@
 
         <div class="graph-container">
             <canvas id="atmosphereTemp"></canvas>
+            <p class="graph-description" id="atmosphereDesc"></p>
         </div>
         <div class="graph-container">
             <canvas id="oceanTemp"></canvas>
+            <p class="graph-description" id="oceanDesc"></p>
         </div>
         <div class="graph-container">
             <canvas id="landTemp"></canvas>
+            <p class="graph-description" id="landDesc"></p>
         </div>
         <div class="graph-container">
             <canvas id="iceVolume"></canvas>
+            <p class="graph-description" id="iceDesc"></p>
+        </div>
+
+        <div class="info-section">
+            <h3>About Climate Change and This Tool</h3>
+            <p>Climate change is a long-term shift in global weather patterns and average temperatures. This simulator helps visualize the complex interactions between different components of the Earth's climate system.</p>
+            <p>How to use this tool:</p>
+            <ul>
+                <li>Adjust the sliders to change various climate parameters</li>
+                <li>Click "Generate Graphs" to see how these changes affect the climate over time</li>
+                <li>Observe how different factors interact and influence each other</li>
+            </ul>
+            <p>Key Facts:</p>
+            <ul>
+                <li>The Earth's average temperature has increased by about 1°C since pre-industrial times</li>
+                <li>Sea levels are rising at a rate of about 3.3 mm per year</li>
+                <li>Arctic sea ice is declining at a rate of 13% per decade</li>
+                <li>Human activities, particularly the burning of fossil fuels, are the primary driver of current climate change</li>
+            </ul>
         </div>
     </div>
 
@@ -216,6 +260,12 @@
             drawGraph('oceanTemp', ocean_temps, 'Ocean Temperature (°C)', 'rgba(54, 162, 235, 0.8)');
             drawGraph('landTemp', land_temps, 'Land Temperature (°C)', 'rgba(75, 192, 192, 0.8)');
             drawGraph('iceVolume', sea_ice_volumes, 'Sea Ice Volume (Million km³)', 'rgba(153, 102, 255, 0.8)');
+
+            // Update graph descriptions
+            updateDescription('atmosphereDesc', atmosphere_temps, 'Atmospheric temperature');
+            updateDescription('oceanDesc', ocean_temps, 'Ocean temperature');
+            updateDescription('landDesc', land_temps, 'Land temperature');
+            updateDescription('iceDesc', sea_ice_volumes, 'Sea ice volume', true);
         }
 
         function drawGraph(canvasId, data, label, color) {
@@ -289,29 +339,4 @@
             ctx.fillText(minValue.toFixed(2), padding - 5, height - padding);
 
             // Draw grid lines
-            ctx.strokeStyle = document.body.classList.contains('dark-mode') ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
-            ctx.lineWidth = 1;
-            for (let i = 1; i < 5; i++) {
-                const y = padding + (height - 2 * padding) * i / 5;
-                ctx.beginPath();
-                ctx.moveTo(padding, y);
-                ctx.lineTo(width - padding, y);
-                ctx.stroke();
-            }
-            for (let i = 1; i < 5; i++) {
-                const x = padding + (width - 2 * padding) * i / 5;
-                ctx.beginPath();
-                ctx.moveTo(x, padding);
-                ctx.lineTo(x, height - padding);
-                ctx.stroke();
-            }
-        }
-
-        document.getElementById('inputForm').addEventListener('submit', generateGraphs);
-        setInterval(updateDateTime, 1000);
-
-        // Generate graphs on page load
-        generateGraphs(new Event('submit'));
-    </script>
-</body>
-</html>
+            ctx.strokeStyle = document.body.classList.contains('dark-mode')
