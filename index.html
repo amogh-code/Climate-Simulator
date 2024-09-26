@@ -4,16 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Climate Simulator</title>
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
     <style>
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: Arial, sans-serif;
             background-color: #f0f0f0;
             color: #333;
             margin: 0;
             padding: 0;
-            transition: background-color 0.5s, color 0.5s;
+            transition: background-color 0.3s, color 0.3s;
         }
         .container {
             width: 80%;
@@ -33,8 +31,7 @@
         .slider-container {
             display: flex;
             flex-direction: column;
-            gap: 15px;
-            margin-bottom: 20px;
+            gap: 10px;
         }
         .slider-label {
             display: flex;
@@ -42,53 +39,27 @@
             align-items: center;
         }
         .graph-container {
-            margin-top: 30px;
+            margin-top: 20px;
             border: 1px solid #ccc;
-            padding: 15px;
+            padding: 10px;
             background-color: #fff;
             border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease-in-out;
         }
-        .graph-container:hover {
-            transform: scale(1.02);
+        canvas {
+            width: 100%;
+            height: 300px;
         }
         button {
-            padding: 12px 24px;
+            padding: 10px 20px;
             background-color: #4CAF50;
             color: white;
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            transition: background-color 0.3s, transform 0.2s;
+            transition: background-color 0.3s;
         }
         button:hover {
             background-color: #45a049;
-            transform: translateY(-2px);
-        }
-        .menu-content {
-            display: none;
-            position: absolute;
-            background-color: #f9f9f9;
-            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-            z-index: 1;
-            padding: 15px;
-            border-radius: 8px;
-            transition: opacity 0.3s;
-        }
-        .dark-mode .menu-content {
-            background-color: #444;
-        }
-        .menu-content select, .menu-content button {
-            margin-top: 10px;
-        }
-        input[type="range"] {
-            width: 60%;
-            margin-left: 10px;
-        }
-        #dateTime {
-            font-size: 1.2em;
-            font-weight: bold;
         }
     </style>
 </head>
@@ -96,17 +67,7 @@
     <div class="container">
         <header>
             <div id="dateTime"></div>
-            <div id="settings">
-                <span id="deviceMenu" onclick="toggleMenu()">Settings</span>
-                <div class="menu-content" id="menuContent">
-                    <label for="deviceSelector">Select Device:</label>
-                    <select id="deviceSelector" onchange="updateLayout()">
-                        <option value="desktop">Desktop</option>
-                        <option value="mobile">Mobile</option>
-                    </select>
-                    <button id="toggleButton" onclick="toggleDarkMode()">Toggle Dark Mode</button>
-                </div>
-            </div>
+            <button id="toggleButton" onclick="toggleDarkMode()">Toggle Dark Mode</button>
         </header>
 
         <h3 style="font-size: 12px; text-align: center;">|| Jai Guru Dev ||</h3>
@@ -148,10 +109,18 @@
             <button type="submit">Generate Graphs</button>
         </form>
 
-        <div class="graph-container" id="atmosphereTemp"></div>
-        <div class="graph-container" id="oceanTemp"></div>
-        <div class="graph-container" id="landTemp"></div>
-        <div class="graph-container" id="iceVolume"></div>
+        <div class="graph-container">
+            <canvas id="atmosphereTemp"></canvas>
+        </div>
+        <div class="graph-container">
+            <canvas id="oceanTemp"></canvas>
+        </div>
+        <div class="graph-container">
+            <canvas id="landTemp"></canvas>
+        </div>
+        <div class="graph-container">
+            <canvas id="iceVolume"></canvas>
+        </div>
     </div>
 
     <script>
@@ -165,59 +134,10 @@
             document.getElementById(sliderId + '_value').innerText = parseFloat(sliderValue).toFixed(3);
         }
 
-        function toggleMenu() {
-            const menuContent = document.getElementById("menuContent");
-            anime({
-                targets: menuContent,
-                opacity: menuContent.style.display === "block" ? [1, 0] : [0, 1],
-                duration: 300,
-                easing: 'easeInOutQuad',
-                begin: function(anim) {
-                    if (menuContent.style.display !== "block") {
-                        menuContent.style.display = "block";
-                    }
-                },
-                complete: function(anim) {
-                    if (menuContent.style.opacity === '0') {
-                        menuContent.style.display = "none";
-                    }
-                }
-            });
-        }
-
         function toggleDarkMode() {
             document.body.classList.toggle('dark-mode');
             const button = document.getElementById('toggleButton');
             button.innerText = document.body.classList.contains('dark-mode') ? 'Toggle Light Mode' : 'Toggle Dark Mode';
-            
-            // Animate the transition
-            anime({
-                targets: 'body',
-                backgroundColor: document.body.classList.contains('dark-mode') ? '#2c2c2c' : '#f0f0f0',
-                color: document.body.classList.contains('dark-mode') ? '#e0e0e0' : '#333',
-                duration: 500,
-                easing: 'easeInOutQuad'
-            });
-        }
-
-        function updateLayout() {
-            const selectedDevice = document.getElementById('deviceSelector').value;
-            const fontSize = selectedDevice === 'mobile' ? '14px' : '16px';
-            const graphWidth = selectedDevice === 'mobile' ? '95%' : '80%';
-            
-            anime({
-                targets: 'body',
-                fontSize: fontSize,
-                duration: 500,
-                easing: 'easeInOutQuad'
-            });
-
-            anime({
-                targets: '.graph-container',
-                width: graphWidth,
-                duration: 500,
-                easing: 'easeInOutQuad'
-            });
         }
 
         function generateGraphs(event) {
@@ -265,55 +185,48 @@
                 sea_ice_volumes.push(sea_ice_volume);
             }
 
-            const plotGraphs = (elementId, data, title, yaxisTitle, color) => {
-                Plotly.newPlot(elementId, [{
-                    x: Array.from({ length: TIME_STEPS }, (_, i) => i + 1),
-                    y: data,
-                    type: 'scatter',
-                    mode: 'lines',
-                    line: { color: color, width: 3 }
-                }], {
-                    title: title,
-                    xaxis: { title: 'Time (Years)' },
-                    yaxis: { title: yaxisTitle },
-                    plot_bgcolor: 'rgba(240,240,240,0.8)',
-                    paper_bgcolor: 'rgba(255,255,255,0.8)',
-                    font: { color: 'black' },
-                    transition: {
-                        duration: 500,
-                        easing: 'cubic-in-out'
-                    }
-                });
-            };
+            drawGraph('atmosphereTemp', atmosphere_temps, 'Atmospheric Temperature', 'red');
+            drawGraph('oceanTemp', ocean_temps, 'Ocean Temperature', 'blue');
+            drawGraph('landTemp', land_temps, 'Land Temperature', 'green');
+            drawGraph('iceVolume', sea_ice_volumes, 'Sea Ice Volume', 'cyan');
+        }
 
-            plotGraphs('atmosphereTemp', atmosphere_temps, 'Atmospheric Temperature Over Time', 'Temperature (°C)', 'red');
-            plotGraphs('oceanTemp', ocean_temps, 'Ocean Temperature Over Time', 'Temperature (°C)', 'blue');
-            plotGraphs('landTemp', land_temps, 'Land Temperature Over Time', 'Temperature (°C)', 'green');
-            plotGraphs('iceVolume', sea_ice_volumes, 'Sea Ice Volume Over Time', 'Volume (Million km³)', 'cyan');
+        function drawGraph(canvasId, data, label, color) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
 
-            // Animate the appearance of graphs
-            anime({
-                targets: '.graph-container',
-                opacity: [0, 1],
-                translateY: [50, 0],
-                duration: 1000,
-                delay: anime.stagger(200),
-                easing: 'easeOutExpo'
-            });
+            ctx.clearRect(0, 0, width, height);
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+
+            const xStep = width / (data.length - 1);
+            const yScale = height / (Math.max(...data) - Math.min(...data));
+
+            for (let i = 0; i < data.length; i++) {
+                const x = i * xStep;
+                const y = height - (data[i] - Math.min(...data)) * yScale;
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+
+            ctx.stroke();
+
+            // Add labels
+            ctx.fillStyle = 'black';
+            ctx.font = '14px Arial';
+            ctx.fillText(label, 10, 20);
+            ctx.fillText('Time (Years)', width - 80, height - 10);
+            ctx.fillText('Value', 10, height - 10);
         }
 
         document.getElementById('inputForm').addEventListener('submit', generateGraphs);
         setInterval(updateDateTime, 1000);
-        updateLayout();
-
-        // Initial animations
-        anime({
-            targets: '.container',
-            opacity: [0, 1],
-            translateY: [50, 0],
-            duration: 1000,
-            easing: 'easeOutExpo'
-        });
     </script>
 </body>
 </html>
