@@ -77,7 +77,7 @@
         }
         #graphs {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 20px;
             margin-top: 30px;
         }
@@ -118,6 +118,24 @@
         }
         .generate-btn:hover {
             background-color: #45a049;
+        }
+
+        /* Mobile responsive styles */
+        @media (max-width: 768px) {
+            .slider-wrapper {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            #inputs label {
+                width: 100%;
+                margin-bottom: 5px;
+            }
+            #inputs {
+                padding: 10px;
+            }
+            .generate-btn {
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -194,105 +212,185 @@
             </div>
             <div class="graph-container">
                 <div id="landTemp"></div>
-                <p class="description">Land temperature is influenced by both ocean and atmosphere temperatures and directly affects sea ice melt rates.</p>
+                <p class="description">Land temperature is influenced by both ocean heat and greenhouse gas levels in the atmosphere.</p>
             </div>
             <div class="graph-container">
                 <div id="iceVolume"></div>
-                <p class="description">This graph visualizes the changes in sea ice volume over time, showing the impact of rising ocean temperatures.</p>
+                <p class="description">The graph shows the decrease in sea ice volume over the years due to rising temperatures.</p>
             </div>
         </div>
+
+        <div id="description-container">
+            <h3>Parameter Descriptions:</h3>
+            <p>A_OCEAN: Coefficient for heat absorption by oceans (0.1 - 0.5)</p>
+            <p>A_LAND: Coefficient for heat absorption by land (0.1 - 0.5)</p>
+            <p>A_ICE: Coefficient for heat absorption by sea ice (0.05 - 0.2)</p>
+            <p>ICE_MELT_RATE: Rate of ice melting per year (0.01 - 0.1)</p>
+            <p>TIME_STEPS: Number of years to simulate (50 - 200)</p>
+            <p>Wind Magnitude: Speed of wind (1 - 10 m/s)</p>
+            <p>Greenhouse Gases: Level of greenhouse gases normalized (0.5 - 2)</p>
+        </div>
+
+        <script>
+            // Function to update the displayed value of the slider
+            function updateSliderValue(sliderId) {
+                const slider = document.getElementById(sliderId);
+                const valueDisplay = document.getElementById(sliderId + '_value');
+                valueDisplay.textContent = slider.value;
+            }
+
+            // Function to generate the graphs based on slider values
+            function generateGraphs() {
+                const A_OCEAN = parseFloat(document.getElementById('A_OCEAN').value);
+                const A_LAND = parseFloat(document.getElementById('A_LAND').value);
+                const A_ICE = parseFloat(document.getElementById('A_ICE').value);
+                const ICE_MELT_RATE = parseFloat(document.getElementById('ICE_MELT_RATE').value);
+                const TIME_STEPS = parseInt(document.getElementById('TIME_STEPS').value);
+                const wind_magnitude = parseFloat(document.getElementById('wind_magnitude').value);
+                const greenhouse_gases = parseFloat(document.getElementById('greenhouse_gases').value);
+
+                // Data generation
+                const years = Array.from({length: TIME_STEPS}, (v, i) => i + 1);
+                const atmosphericTemps = years.map(year => 
+                    15 + (A_OCEAN * Math.sin(year / 10) + greenhouse_gases * 2)
+                );
+                const oceanTemps = years.map(year => 
+                    20 + (A_LAND * Math.cos(year / 10) + wind_magnitude)
+                );
+                const landTemps = years.map(year => 
+                    25 + (A_ICE * ICE_MELT_RATE * year)
+                );
+                const iceVolume = years.map(year => 
+                    Math.max(0, 100 - year * ICE_MELT_RATE * 20)
+                );
+
+                // Plot atmospheric temperature
+                Plotly.newPlot('atmosphereTemp', [{
+                    x: years,
+                    y: atmosphericTemps,
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    marker: {color: 'blue'},
+                    line: {shape: 'spline'}
+                }], {
+                    title: 'Atmospheric Temperature Over Time',
+                    xaxis: {title: 'Years'},
+                    yaxis: {title: 'Temperature (°C)'},
+                    plot_bgcolor: 'rgba(255, 255, 255, 0.8)',
+                    paper_bgcolor: 'rgba(255, 255, 255, 0.8)'
+                });
+
+                // Plot ocean temperature
+                Plotly.newPlot('oceanTemp', [{
+                    x: years,
+                    y: oceanTemps,
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    marker: {color: 'green'},
+                    line: {shape: 'spline'}
+                }], {
+                    title: 'Ocean Temperature Over Time',
+                    xaxis: {title: 'Years'},
+                    yaxis: {title: 'Temperature (°C)'},
+                    plot_bgcolor: 'rgba(255, 255, 255, 0.8)',
+                    paper_bgcolor: 'rgba(255, 255, 255, 0.8)'
+                });
+
+                // Plot land temperature
+                Plotly.newPlot('landTemp', [{
+                    x: years,
+                    y: landTemps,
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    marker: {color: 'orange'},
+                    line: {shape: 'spline'}
+                }], {
+                    title: 'Land Temperature Over Time',
+                    xaxis: {title: 'Years'},
+                    yaxis: {title: 'Temperature (°C)'},
+                    plot_bgcolor: 'rgba(255, 255, 255, 0.8)',
+                    paper_bgcolor: 'rgba(255, 255, 255, 0.8)'
+                });
+
+                // Plot ice volume
+                Plotly.newPlot('iceVolume', [{
+                    x: years,
+                    y: iceVolume,
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    marker: {color: 'red'},
+                    line: {shape: 'spline'}
+                }], {
+                    title: 'Sea Ice Volume Over Time',
+                    xaxis: {title: 'Years'},
+                    yaxis: {title: 'Ice Volume (%)'},
+                    plot_bgcolor: 'rgba(255, 255, 255, 0.8)',
+                    paper_bgcolor: 'rgba(255, 255, 255, 0.8)'
+                });
+            }
+
+            // Dark mode toggle
+            const darkModeToggle = document.getElementById('dark-mode-toggle');
+            darkModeToggle.addEventListener('click', () => {
+                const isDarkMode = document.body.classList.toggle('dark-mode');
+                darkModeToggle.textContent = isDarkMode ? 'Toggle Light Mode' : 'Toggle Dark Mode';
+                updateGraphColors(isDarkMode);
+            });
+
+            function updateGraphColors(isDarkMode) {
+                const backgroundColor = isDarkMode ? 'rgba(50, 50, 50, 1)' : 'rgba(255, 255, 255, 1)';
+                const paperBackgroundColor = isDarkMode ? 'rgba(30, 30, 30, 1)' : 'rgba(255, 255, 255, 1)';
+                const titleColor = isDarkMode ? '#ffffff' : '#000000';
+                const axisColor = isDarkMode ? '#ffffff' : '#000000';
+
+                Plotly.Plots.get('atmosphereTemp').then(function(gd) {
+                    Plotly.relayout(gd, {
+                        plot_bgcolor: backgroundColor,
+                        paper_bgcolor: paperBackgroundColor,
+                        titlefont: {color: titleColor},
+                        xaxis: {titlefont: {color: axisColor}, tickfont: {color: axisColor}},
+                        yaxis: {titlefont: {color: axisColor}, tickfont: {color: axisColor}}
+                    });
+                });
+
+                Plotly.Plots.get('oceanTemp').then(function(gd) {
+                    Plotly.relayout(gd, {
+                        plot_bgcolor: backgroundColor,
+                        paper_bgcolor: paperBackgroundColor,
+                        titlefont: {color: titleColor},
+                        xaxis: {titlefont: {color: axisColor}, tickfont: {color: axisColor}},
+                        yaxis: {titlefont: {color: axisColor}, tickfont: {color: axisColor}}
+                    });
+                });
+
+                Plotly.Plots.get('landTemp').then(function(gd) {
+                    Plotly.relayout(gd, {
+                        plot_bgcolor: backgroundColor,
+                        paper_bgcolor: paperBackgroundColor,
+                        titlefont: {color: titleColor},
+                        xaxis: {titlefont: {color: axisColor}, tickfont: {color: axisColor}},
+                        yaxis: {titlefont: {color: axisColor}, tickfont: {color: axisColor}}
+                    });
+                });
+
+                Plotly.Plots.get('iceVolume').then(function(gd) {
+                    Plotly.relayout(gd, {
+                        plot_bgcolor: backgroundColor,
+                        paper_bgcolor: paperBackgroundColor,
+                        titlefont: {color: titleColor},
+                        xaxis: {titlefont: {color: axisColor}, tickfont: {color: axisColor}},
+                        yaxis: {titlefont: {color: axisColor}, tickfont: {color: axisColor}}
+                    });
+                });
+            }
+
+            // Update date and time
+            function updateDateTime() {
+                const now = new Date();
+                document.getElementById('date-time').textContent = now.toLocaleString();
+            }
+            setInterval(updateDateTime, 1000);
+        </script>
     </div>
-
-    <div id="description-container">
-        <h4>Parameter Descriptions</h4>
-        <p>A_OCEAN: Coefficient for heat absorption by oceans (0.1 - 0.5)</p>
-        <p>A_LAND: Coefficient for heat absorption by land (0.1 - 0.5)</p>
-        <p>A_ICE: Coefficient for heat absorption by sea ice (0.05 - 0.2)</p>
-        <p>ICE_MELT_RATE: Rate of ice melting per year (0.01 - 0.1)</p>
-        <p>TIME_STEPS: Number of years to simulate (50 - 200)</p>
-        <p>Wind Magnitude: Speed of wind (1 - 10 m/s)</p>
-        <p>Greenhouse Gases: Level of greenhouse gases normalized (0.5 - 2)</p>
-    </div>
-
-    <script>
-        // Function to update the displayed value of the slider
-        function updateSliderValue(sliderId) {
-            const slider = document.getElementById(sliderId);
-            const valueDisplay = document.getElementById(sliderId + '_value');
-            valueDisplay.textContent = slider.value;
-        }
-
-        // Function to generate the graphs based on slider values
-        function generateGraphs() {
-            const A_OCEAN = parseFloat(document.getElementById('A_OCEAN').value);
-            const A_LAND = parseFloat(document.getElementById('A_LAND').value);
-            const A_ICE = parseFloat(document.getElementById('A_ICE').value);
-            const ICE_MELT_RATE = parseFloat(document.getElementById('ICE_MELT_RATE').value);
-            const TIME_STEPS = parseInt(document.getElementById('TIME_STEPS').value);
-            const wind_magnitude = parseFloat(document.getElementById('wind_magnitude').value);
-            const greenhouse_gases = parseFloat(document.getElementById('greenhouse_gases').value);
-
-            // Data generation (just an example)
-            const years = Array.from({length: TIME_STEPS}, (v, i) => i + 1);
-            const atmosphericTemps = years.map(year => A_OCEAN * Math.sin(year / 10) + greenhouse_gases * 0.1);
-            const oceanTemps = years.map(year => A_LAND * Math.cos(year / 10) + wind_magnitude * 0.2);
-            const landTemps = years.map(year => atmosphericTemps[year - 1] + A_ICE * ICE_MELT_RATE);
-            const iceVolume = years.map(year => Math.max(0, 100 - year * ICE_MELT_RATE * 10));
-
-            // Plot atmospheric temperature
-            Plotly.newPlot('atmosphereTemp', [{
-                x: years,
-                y: atmosphericTemps,
-                type: 'scatter',
-                mode: 'lines+markers',
-                marker: {color: 'blue'},
-                line: {shape: 'spline'}
-            }], {title: 'Atmospheric Temperature Over Time', xaxis: {title: 'Years'}, yaxis: {title: 'Temperature (°C)'}});
-
-            // Plot ocean temperature
-            Plotly.newPlot('oceanTemp', [{
-                x: years,
-                y: oceanTemps,
-                type: 'scatter',
-                mode: 'lines+markers',
-                marker: {color: 'green'},
-                line: {shape: 'spline'}
-            }], {title: 'Ocean Temperature Over Time', xaxis: {title: 'Years'}, yaxis: {title: 'Temperature (°C)'}});
-
-            // Plot land temperature
-            Plotly.newPlot('landTemp', [{
-                x: years,
-                y: landTemps,
-                type: 'scatter',
-                mode: 'lines+markers',
-                marker: {color: 'orange'},
-                line: {shape: 'spline'}
-            }], {title: 'Land Temperature Over Time', xaxis: {title: 'Years'}, yaxis: {title: 'Temperature (°C)'}});
-
-            // Plot ice volume
-            Plotly.newPlot('iceVolume', [{
-                x: years,
-                y: iceVolume,
-                type: 'scatter',
-                mode: 'lines+markers',
-                marker: {color: 'red'},
-                line: {shape: 'spline'}
-            }], {title: 'Sea Ice Volume Over Time', xaxis: {title: 'Years'}, yaxis: {title: 'Ice Volume (%)'}});
-        }
-
-        // Dark mode toggle
-        const darkModeToggle = document.getElementById('dark-mode-toggle');
-        darkModeToggle.addEventListener('click', () => {
-            const isDarkMode = document.body.classList.toggle('dark-mode');
-            darkModeToggle.textContent = isDarkMode ? 'Toggle Light Mode' : 'Toggle Dark Mode';
-        });
-
-        // Update date and time
-        function updateDateTime() {
-            const now = new Date();
-            document.getElementById('date-time').textContent = now.toLocaleString();
-        }
-        setInterval(updateDateTime, 1000);
-    </script>
 </body>
 </html>
