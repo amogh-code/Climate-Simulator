@@ -6,233 +6,254 @@
     <title>Climate Simulator</title>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <style>
+        /* General styles for the body */
         body {
             font-family: Arial, sans-serif;
-            transition: background-color 0.5s, color 0.5s;
-            background-color: #ffffff;
-            color: #000000;
             margin: 0;
             padding: 0;
+            background-color: white;
+            color: black;
+            transition: background-color 0.5s, color 0.5s;
         }
 
-        .dark-mode {
-            background-color: #121212;
-            color: #ffffff;
-        }
-
-        h1, h2 {
-            text-align: center;
-        }
-
-        #menu {
-            margin: 20px;
-            text-align: center;
-        }
-
-        #settings {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            z-index: 10;
-        }
-
-        .collapsible {
-            background-color: #007BFF;
-            color: white;
-            cursor: pointer;
+        /* Header styles */
+        header {
+            display: flex;
+            justify-content: space-between;
             padding: 10px;
-            width: 100%;
-            border: none;
-            text-align: left;
-            outline: none;
-            font-size: 15px;
+            background-color: #f0f0f0;
+            border-bottom: 2px solid #ccc;
+            position: relative;
+        }
+
+        /* Date and time display */
+        #dateTime {
+            font-size: 14px;
+        }
+
+        /* Settings menu styling */
+        #settings {
+            position: relative;
+            display: inline-block;
+        }
+
+        #deviceMenu {
+            cursor: pointer;
+            padding: 5px;
+            border: 1px solid #007bff;
             border-radius: 5px;
+            background-color: #fff;
+            transition: background-color 0.3s;
         }
 
-        .active, .collapsible:hover {
-            background-color: #0056b3;
-        }
-
-        .content {
-            padding: 0 18px;
+        /* Dropdown menu content styling */
+        .menu-content {
             display: none;
-            overflow: hidden;
-            background-color: #f1f1f1;
-            margin-top: 5px;
+            position: absolute;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            z-index: 1;
+            padding: 10px;
             border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
 
-        label {
+        /* Menu links styling */
+        .menu-content a {
+            color: black;
+            padding: 10px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .menu-content a:hover {
+            background-color: #ddd;
+        }
+
+        /* Button styles */
+        #toggleButton {
+            margin-left: 10px;
+            padding: 5px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        /* Form styles */
+        #inputForm {
+            margin: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Slider label styles */
+        .slider-label {
             display: inline-block;
             width: 300px;
             margin-bottom: 10px;
         }
 
-        input[type=number], input[type=range] {
-            margin-bottom: 10px;
-            width: 100%;
-        }
-
+        /* Graph container styling */
         .graph-container {
-            width: 90%;
-            margin: 0 auto;
+            margin: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
         }
 
-        footer {
-            text-align: center;
-            padding: 20px;
-            margin-top: 20px;
+        /* Dark mode styles */
+        .dark-mode {
+            background-color: #121212;
+            color: #e0e0e0;
         }
 
-        .hidden {
-            display: none;
+        .dark-mode .graph-container {
+            border: 1px solid #444;
         }
 
-        #dateTime {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            z-index: 10;
+        .dark-mode .menu-content {
+            background-color: #222;
+        }
+
+        .dark-mode .menu-content a {
+            color: #e0e0e0;
+        }
+
+        /* Responsive design */
+        @media (max-width: 600px) {
+            body {
+                font-size: 14px;
+            }
+
+            .slider-label {
+                width: 100%;
+            }
+
+            #inputForm {
+                margin: 10px;
+            }
         }
     </style>
 </head>
 <body>
-    <h1>|| Jai Guru Dev ||</h1>
-    <h2>Anweshna 2025</h2>
-    <p style="text-align:center;">Done by Advaith, Hariprasad, and Amogh from Class 12 A, SSRVM North Bangalore</p>
-    <h2>Climate Simulator</h2>
-
-    <div id="dateTime"></div>
-
-    <div id="settings">
-        <button class="collapsible">Settings</button>
-        <div class="content">
-            <label for="darkModeToggle">Dark Mode</label>
-            <input type="checkbox" id="darkModeToggle">
-            <br>
-            <label for="deviceSelect">Select Device:</label>
-            <select id="deviceSelect">
-                <option value="desktop">Desktop</option>
-                <option value="mobile">Mobile</option>
-            </select>
+    <header>
+        <div id="dateTime"></div>
+        <div id="settings">
+            <span id="deviceMenu" onclick="toggleMenu()">Settings</span>
+            <div class="menu-content" id="menuContent">
+                <label for="deviceSelector">Select Device:</label>
+                <select id="deviceSelector" onchange="updateLayout()">
+                    <option value="desktop">Desktop</option>
+                    <option value="mobile">Mobile</option>
+                </select>
+                <button id="toggleButton" onclick="toggleDarkMode()">Toggle Dark Mode</button>
+            </div>
         </div>
-    </div>
+    </header>
 
-    <div id="menu">
-        <label for="A_OCEAN">Ocean Heat Absorption Coefficient (A_OCEAN):</label>
-        <input type="range" id="A_OCEAN" name="A_OCEAN" min="0" max="1" value="0.2" step="0.01">
-        <span id="A_OCEAN_value">0.20</span>
-        <br>
+    <h3 style="font-size: 12px; text-align: center;">|| Jai Guru Dev ||</h3>
+    <h1 style="text-align: center;">Anweshna 2025</h1>
+    <h3 style="text-align: center;">Done by Advaith, Hariprasad, and Amogh from Class 12 A SSRVM North Bangalore</h3>
+    <h2 style="text-align: center;">Climate Simulator</h2>
 
-        <label for="A_LAND">Land Heat Absorption Coefficient (A_LAND):</label>
-        <input type="range" id="A_LAND" name="A_LAND" min="0" max="1" value="0.3" step="0.01">
-        <span id="A_LAND_value">0.30</span>
-        <br>
+    <!-- Input form for climate parameters -->
+    <form id="inputForm">
+        <div class="slider-container">
+            <label class="slider-label">Ocean Heat Absorption Coefficient (A_OCEAN): 
+                <input type="range" min="0" max="1" value="0.2" step="0.01" id="A_OCEAN" oninput="updateValue('A_OCEAN')">
+                <span id="A_OCEAN_value">0.20</span>
+            </label>
+            <label class="slider-label">Land Heat Absorption Coefficient (A_LAND): 
+                <input type="range" min="0" max="1" value="0.3" step="0.01" id="A_LAND" oninput="updateValue('A_LAND')">
+                <span id="A_LAND_value">0.30</span>
+            </label>
+            <label class="slider-label">Sea Ice Heat Absorption Coefficient (A_ICE): 
+                <input type="range" min="0" max="1" value="0.1" step="0.01" id="A_ICE" oninput="updateValue('A_ICE')">
+                <span id="A_ICE_value">0.10</span>
+            </label>
+            <label class="slider-label">Ice Melt Rate: 
+                <input type="range" min="0" max="1" value="0.05" step="0.01" id="ICE_MELT_RATE" oninput="updateValue('ICE_MELT_RATE')">
+                <span id="ICE_MELT_RATE_value">0.05</span>
+            </label>
+            <label class="slider-label">Time Steps (Years): 
+                <input type="range" min="1" max="200" value="100" id="TIME_STEPS" oninput="updateValue('TIME_STEPS')">
+                <span id="TIME_STEPS_value">100</span>
+            </label>
+            <label class="slider-label">Wind Magnitude (m/s): 
+                <input type="range" min="0" max="20" value="5" id="wind_magnitude" oninput="updateValue('wind_magnitude')">
+                <span id="wind_magnitude_value">5</span>
+            </label>
+            <label class="slider-label">Greenhouse Gases (normalized): 
+                <input type="range" min="0" max="5" value="1" step="0.01" id="greenhouse_gases" oninput="updateValue('greenhouse_gases')">
+                <span id="greenhouse_gases_value">1.00</span>
+            </label>
+        </div>
+        <button type="submit">Generate Graphs</button>
+    </form>
 
-        <label for="A_ICE">Sea Ice Heat Absorption Coefficient (A_ICE):</label>
-        <input type="range" id="A_ICE" name="A_ICE" min="0" max="1" value="0.1" step="0.01">
-        <span id="A_ICE_value">0.10</span>
-        <br>
-
-        <label for="ICE_MELT_RATE">Ice Melt Rate:</label>
-        <input type="range" id="ICE_MELT_RATE" name="ICE_MELT_RATE" min="0" max="1" value="0.05" step="0.01">
-        <span id="ICE_MELT_RATE_value">0.05</span>
-        <br>
-
-        <label for="TIME_STEPS">Time Steps (Years):</label>
-        <input type="number" id="TIME_STEPS" name="TIME_STEPS" value="100" required>
-        <br>
-
-        <label for="wind_magnitude">Wind Magnitude (m/s):</label>
-        <input type="range" id="wind_magnitude" name="wind_magnitude" min="0" max="20" value="5" required>
-        <span id="wind_magnitude_value">5.00</span>
-        <br>
-
-        <label for="greenhouse_gases">Greenhouse Gases (normalized):</label>
-        <input type="range" id="greenhouse_gases" name="greenhouse_gases" min="0" max="5" value="1" step="0.01">
-        <span id="greenhouse_gases_value">1.00</span>
-        <br>
-
-        <button id="generateButton">Generate Graphs</button>
-    </div>
-
-    <h2>Graphs</h2>
-    <div class="graph-container">
-        <div id="atmosphereTemp"></div>
-        <p>Atmosphere Temperature Over Time: The graph shows the temperature change in the atmosphere due to various heat absorption coefficients and wind effects.</p>
-
-        <div id="oceanTemp"></div>
-        <p>Ocean Temperature Over Time: Displays how ocean temperatures rise due to heat transfer from the atmosphere and land.</p>
-
-        <div id="landTemp"></div>
-        <p>Land Temperature Over Time: Represents the land temperature changes influenced by ocean heat and other environmental factors.</p>
-
-        <div id="iceVolume"></div>
-        <p>Sea Ice Volume Over Time: Illustrates how sea ice volume decreases due to rising ocean temperatures.</p>
-    </div>
-
-    <footer>
-        <p>Climate Simulator © 2025</p>
-    </footer>
+    <!-- Graph containers -->
+    <div class="graph-container" id="atmosphereTemp"></div>
+    <div class="graph-container" id="oceanTemp"></div>
+    <div class="graph-container" id="landTemp"></div>
+    <div class="graph-container" id="iceVolume"></div>
 
     <script>
-        // Dark mode toggle
-        document.getElementById('darkModeToggle').addEventListener('change', function() {
+        // Update date and time every second
+        function updateDateTime() {
+            const now = new Date();
+            document.getElementById('dateTime').innerText = now.toLocaleString();
+        }
+
+        // Update the value display for each slider
+        function updateValue(sliderId) {
+            const sliderValue = document.getElementById(sliderId).value;
+            document.getElementById(sliderId + '_value').innerText = parseFloat(sliderValue).toFixed(2);
+        }
+
+        // Toggle the settings menu
+        function toggleMenu() {
+            const menuContent = document.getElementById("menuContent");
+            menuContent.style.display = menuContent.style.display === "block" ? "none" : "block";
+        }
+
+        // Toggle dark mode
+        function toggleDarkMode() {
             document.body.classList.toggle('dark-mode');
-            updateGraphColors();
-        });
-
-        // Update the graph colors
-        function updateGraphColors() {
-            const isDarkMode = document.body.classList.contains('dark-mode');
-            Plotly.restyle('atmosphereTemp', {
-                'marker.color': isDarkMode ? 'cyan' : 'blue',
-                'line.color': isDarkMode ? 'cyan' : 'blue'
-            });
-            Plotly.restyle('oceanTemp', {
-                'marker.color': isDarkMode ? 'lightgreen' : 'green',
-                'line.color': isDarkMode ? 'lightgreen' : 'green'
-            });
-            Plotly.restyle('landTemp', {
-                'marker.color': isDarkMode ? 'orange' : 'orange',
-                'line.color': isDarkMode ? 'orange' : 'orange'
-            });
-            Plotly.restyle('iceVolume', {
-                'marker.color': isDarkMode ? 'magenta' : 'purple',
-                'line.color': isDarkMode ? 'magenta' : 'purple'
-            });
+            const button = document.getElementById('toggleButton');
+            button.innerText = document.body.classList.contains('dark-mode') ? 'Toggle Light Mode' : 'Toggle Dark Mode';
         }
 
-        // Collapsible settings box
-        var coll = document.getElementsByClassName("collapsible");
-        for (var i = 0; i < coll.length; i++) {
-            coll[i].addEventListener("click", function() {
-                this.classList.toggle("active");
-                var content = this.nextElementSibling;
-                if (content.style.display === "block") {
-                    content.style.display = "none";
-                } else {
-                    content.style.display = "block";
-                }
-            });
+        // Update layout based on the selected device
+        function updateLayout() {
+            const selectedDevice = document.getElementById('deviceSelector').value;
+            if (selectedDevice === 'mobile') {
+                document.body.style.fontSize = '14px';
+                document.querySelectorAll('.slider-label').forEach(label => {
+                    label.style.width = '100%'; // Full width for mobile
+                });
+                // Adjust graph sizes for mobile
+                document.querySelectorAll('.graph-container').forEach(container => {
+                    container.style.width = '90%';
+                    container.style.margin = '0 auto';
+                });
+            } else {
+                document.body.style.fontSize = '16px';
+                // Adjust graph sizes for desktop
+                document.querySelectorAll('.graph-container').forEach(container => {
+                    container.style.width = '80%';
+                    container.style.margin = '20px auto';
+                });
+            }
         }
 
-        // Update slider values
-        function updateSliderValue(sliderId, valueId) {
-            const slider = document.getElementById(sliderId);
-            const valueDisplay = document.getElementById(valueId);
-            valueDisplay.innerText = slider.value;
-        }
+        // Main function to generate graphs based on user input
+        function generateGraphs(event) {
+            event.preventDefault(); // Prevent form submission
 
-        // Add event listeners to sliders
-        document.getElementById('A_OCEAN').addEventListener('input', () => updateSliderValue('A_OCEAN', 'A_OCEAN_value'));
-        document.getElementById('A_LAND').addEventListener('input', () => updateSliderValue('A_LAND', 'A_LAND_value'));
-        document.getElementById('A_ICE').addEventListener('input', () => updateSliderValue('A_ICE', 'A_ICE_value'));
-        document.getElementById('ICE_MELT_RATE').addEventListener('input', () => updateSliderValue('ICE_MELT_RATE', 'ICE_MELT_RATE_value'));
-        document.getElementById('wind_magnitude').addEventListener('input', () => updateSliderValue('wind_magnitude', 'wind_magnitude_value'));
-        document.getElementById('greenhouse_gases').addEventListener('input', () => updateSliderValue('greenhouse_gases', 'greenhouse_gases_value'));
-
-        document.getElementById('generateButton').addEventListener('click', function() {
+            // Retrieve user input values
             const A_OCEAN = parseFloat(document.getElementById('A_OCEAN').value);
             const A_LAND = parseFloat(document.getElementById('A_LAND').value);
             const A_ICE = parseFloat(document.getElementById('A_ICE').value);
@@ -241,72 +262,108 @@
             const wind_magnitude = parseFloat(document.getElementById('wind_magnitude').value);
             const greenhouse_gases = parseFloat(document.getElementById('greenhouse_gases').value);
 
-            const time = Array.from({length: TIME_STEPS}, (_, i) => i);
-            const atmosphereTemp = time.map(t => 15 + (A_OCEAN * t) + (wind_magnitude * Math.random()));
-            const oceanTemp = time.map(t => 20 + (A_LAND * t) + (greenhouse_gases * Math.random()));
-            const landTemp = time.map(t => 25 + (A_ICE * t) + (wind_magnitude * Math.random()));
-            const iceVolume = time.map(t => Math.max(0, 1 - (ICE_MELT_RATE * t / 100))); // Ensuring ice volume doesn't go negative
+            // Initialize arrays for graph data
+            let atmosphere_temps = [];
+            let ocean_temps = [];
+            let land_temps = [];
+            let sea_ice_volumes = [];
 
+            // Base temperature and volume values
+            let baseAtmosphereTemp = 14; // Initial average atmosphere temperature
+            let baseOceanTemp = 15; // Initial average ocean temperature
+            let baseLandTemp = 15; // Initial average land temperature
+            let baseIceVolume = 5000; // Initial sea ice volume in million km³
+
+            // Calculate temperature and ice volume changes over time
+            for (let i = 0; i < TIME_STEPS; i++) {
+                let timeFactor = i / 100; // Scales time effect
+
+                // Update temperatures and ice volume based on the model
+                let atmosphereTemp = baseAtmosphereTemp + (A_OCEAN * timeFactor) + (greenhouse_gases * 0.5);
+                let oceanTemp = baseOceanTemp + (A_OCEAN * timeFactor) + (wind_magnitude * 0.1);
+                let landTemp = baseLandTemp + (A_LAND * timeFactor) + (wind_magnitude * 0.2);
+                let seaIceVolume = baseIceVolume - (ICE_MELT_RATE * timeFactor) - (A_ICE * timeFactor * 10);
+
+                // Ensure values don't drop below zero
+                seaIceVolume = Math.max(seaIceVolume, 0);
+
+                // Push calculated values into their respective arrays
+                atmosphere_temps.push(atmosphereTemp);
+                ocean_temps.push(oceanTemp);
+                land_temps.push(landTemp);
+                sea_ice_volumes.push(seaIceVolume);
+            }
+
+            // Plot the graphs using Plotly
             Plotly.newPlot('atmosphereTemp', [{
-                x: time,
-                y: atmosphereTemp,
+                x: Array.from({ length: TIME_STEPS }, (_, i) => i + 1),
+                y: atmosphere_temps,
                 type: 'scatter',
-                mode: 'lines+markers',
-                name: 'Atmosphere Temperature',
-                line: {color: 'blue'}
-            }]);
+                name: 'Atmospheric Temperature',
+                line: { color: 'orange' }
+            }], {
+                title: 'Atmospheric Temperature Over Time',
+                xaxis: { title: 'Time (Years)' },
+                yaxis: { title: 'Temperature (°C)' },
+                plot_bgcolor: 'rgba(255, 255, 255, 0.8)',
+                paper_bgcolor: 'rgba(255, 255, 255, 0.8)',
+                font: { color: 'black' }
+            });
 
             Plotly.newPlot('oceanTemp', [{
-                x: time,
-                y: oceanTemp,
+                x: Array.from({ length: TIME_STEPS }, (_, i) => i + 1),
+                y: ocean_temps,
                 type: 'scatter',
-                mode: 'lines+markers',
                 name: 'Ocean Temperature',
-                line: {color: 'green'}
-            }]);
+                line: { color: 'blue' }
+            }], {
+                title: 'Ocean Temperature Over Time',
+                xaxis: { title: 'Time (Years)' },
+                yaxis: { title: 'Temperature (°C)' },
+                plot_bgcolor: 'rgba(255, 255, 255, 0.8)',
+                paper_bgcolor: 'rgba(255, 255, 255, 0.8)',
+                font: { color: 'black' }
+            });
 
             Plotly.newPlot('landTemp', [{
-                x: time,
-                y: landTemp,
+                x: Array.from({ length: TIME_STEPS }, (_, i) => i + 1),
+                y: land_temps,
                 type: 'scatter',
-                mode: 'lines+markers',
                 name: 'Land Temperature',
-                line: {color: 'orange'}
-            }]);
+                line: { color: 'green' }
+            }], {
+                title: 'Land Temperature Over Time',
+                xaxis: { title: 'Time (Years)' },
+                yaxis: { title: 'Temperature (°C)' },
+                plot_bgcolor: 'rgba(255, 255, 255, 0.8)',
+                paper_bgcolor: 'rgba(255, 255, 255, 0.8)',
+                font: { color: 'black' }
+            });
 
             Plotly.newPlot('iceVolume', [{
-                x: time,
-                y: iceVolume,
+                x: Array.from({ length: TIME_STEPS }, (_, i) => i + 1),
+                y: sea_ice_volumes,
                 type: 'scatter',
-                mode: 'lines+markers',
                 name: 'Sea Ice Volume',
-                line: {color: 'purple'}
-            }]);
-
-            updateGraphColors(); // Update colors based on the dark mode
-        });
-
-        // Update the date and time
-        function updateDateTime() {
-            const now = new Date();
-            const dateTimeString = now.toLocaleString();
-            document.getElementById("dateTime").innerText = dateTimeString;
+                line: { color: 'cyan' }
+            }], {
+                title: 'Sea Ice Volume Over Time',
+                xaxis: { title: 'Time (Years)' },
+                yaxis: { title: 'Volume (Million km³)' },
+                plot_bgcolor: 'rgba(255, 255, 255, 0.8)',
+                paper_bgcolor: 'rgba(255, 255, 255, 0.8)',
+                font: { color: 'black' }
+            });
         }
 
-        // Update the date and time every second
-        setInterval(updateDateTime, 1000);
-        updateDateTime(); // Initial call
+        // Attach the event listener to the form
+        document.getElementById('inputForm').addEventListener('submit', generateGraphs);
 
-        // Handle device selection
-        document.getElementById('deviceSelect').addEventListener('change', function() {
-            if (this.value === 'mobile') {
-                document.body.style.fontSize = '14px';
-                document.querySelector('.graph-container').style.width = '100%';
-            } else {
-                document.body.style.fontSize = '16px';
-                document.querySelector('.graph-container').style.width = '90%';
-            }
-        });
+        // Start updating the date and time
+        setInterval(updateDateTime, 1000);
+
+        // Initial layout setup
+        updateLayout();
     </script>
 </body>
 </html>
