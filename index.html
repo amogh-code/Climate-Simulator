@@ -6,7 +6,7 @@
     <title>Climate Simulator</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f0f0f0;
             color: #333;
             margin: 0;
@@ -14,7 +14,8 @@
             transition: background-color 0.3s, color 0.3s;
         }
         .container {
-            width: 80%;
+            width: 90%;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
         }
@@ -27,11 +28,17 @@
             justify-content: space-between;
             align-items: center;
             padding: 10px 0;
+            margin-bottom: 20px;
         }
         .slider-container {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 15px;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
         }
         .slider-label {
             display: flex;
@@ -39,27 +46,46 @@
             align-items: center;
         }
         .graph-container {
-            margin-top: 20px;
-            border: 1px solid #ccc;
-            padding: 10px;
-            background-color: #fff;
-            border-radius: 8px;
+            margin-top: 30px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            transition: transform 0.3s ease;
+        }
+        .graph-container:hover {
+            transform: translateY(-5px);
         }
         canvas {
             width: 100%;
-            height: 300px;
+            height: 400px;
+            border-radius: 5px;
         }
         button {
-            padding: 10px 20px;
+            padding: 12px 24px;
             background-color: #4CAF50;
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 5px;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s, transform 0.2s;
+            font-size: 16px;
+            font-weight: bold;
         }
         button:hover {
             background-color: #45a049;
+            transform: translateY(-2px);
+        }
+        input[type="range"] {
+            width: 60%;
+            margin-left: 10px;
+        }
+        h1, h2, h3 {
+            text-align: center;
+            color: #333;
+        }
+        .dark-mode h1, .dark-mode h2, .dark-mode h3 {
+            color: #e0e0e0;
         }
     </style>
 </head>
@@ -70,10 +96,10 @@
             <button id="toggleButton" onclick="toggleDarkMode()">Toggle Dark Mode</button>
         </header>
 
-        <h3 style="font-size: 12px; text-align: center;">|| Jai Guru Dev ||</h3>
-        <h1 style="text-align: center;">Anweshna 2025</h1>
-        <h3 style="text-align: center;">Done by Advaith, Hariprasad, and Amogh from Class 12 A SSRVM North Bangalore</h3>
-        <h2 style="text-align: center;">Climate Simulator</h2>
+        <h3 style="font-size: 12px;">|| Jai Guru Dev ||</h3>
+        <h1>Anweshna 2025</h1>
+        <h3>Done by Advaith, Hariprasad, and Amogh from Class 12 A SSRVM North Bangalore</h3>
+        <h2>Climate Simulator</h2>
 
         <form id="inputForm">
             <div class="slider-container">
@@ -138,6 +164,7 @@
             document.body.classList.toggle('dark-mode');
             const button = document.getElementById('toggleButton');
             button.innerText = document.body.classList.contains('dark-mode') ? 'Toggle Light Mode' : 'Toggle Dark Mode';
+            generateGraphs(new Event('submit'));
         }
 
         function generateGraphs(event) {
@@ -185,10 +212,10 @@
                 sea_ice_volumes.push(sea_ice_volume);
             }
 
-            drawGraph('atmosphereTemp', atmosphere_temps, 'Atmospheric Temperature (°C)', 'red');
-            drawGraph('oceanTemp', ocean_temps, 'Ocean Temperature (°C)', 'blue');
-            drawGraph('landTemp', land_temps, 'Land Temperature (°C)', 'green');
-            drawGraph('iceVolume', sea_ice_volumes, 'Sea Ice Volume (Million km³)', 'cyan');
+            drawGraph('atmosphereTemp', atmosphere_temps, 'Atmospheric Temperature (°C)', 'rgba(255, 99, 132, 0.8)');
+            drawGraph('oceanTemp', ocean_temps, 'Ocean Temperature (°C)', 'rgba(54, 162, 235, 0.8)');
+            drawGraph('landTemp', land_temps, 'Land Temperature (°C)', 'rgba(75, 192, 192, 0.8)');
+            drawGraph('iceVolume', sea_ice_volumes, 'Sea Ice Volume (Million km³)', 'rgba(153, 102, 255, 0.8)');
         }
 
         function drawGraph(canvasId, data, label, color) {
@@ -201,7 +228,7 @@
             
             const width = canvas.width;
             const height = canvas.height;
-            const padding = 40;
+            const padding = 60;
 
             ctx.clearRect(0, 0, width, height);
             
@@ -209,18 +236,23 @@
             const maxValue = Math.max(...data);
             const valueRange = maxValue - minValue;
 
+            // Draw background
+            ctx.fillStyle = document.body.classList.contains('dark-mode') ? '#333' : '#f8f8f8';
+            ctx.fillRect(0, 0, width, height);
+
             // Draw axes
             ctx.beginPath();
             ctx.moveTo(padding, padding);
             ctx.lineTo(padding, height - padding);
             ctx.lineTo(width - padding, height - padding);
-            ctx.strokeStyle = 'black';
+            ctx.strokeStyle = document.body.classList.contains('dark-mode') ? '#ddd' : '#666';
+            ctx.lineWidth = 2;
             ctx.stroke();
 
             // Draw graph
             ctx.beginPath();
             ctx.strokeStyle = color;
-            ctx.lineWidth = 2;
+            ctx.lineWidth = 3;
 
             const xStep = (width - 2 * padding) / (data.length - 1);
             const yScale = (height - 2 * padding) / valueRange;
@@ -238,22 +270,41 @@
             ctx.stroke();
 
             // Add labels
-            ctx.fillStyle = 'black';
-            ctx.font = '14px Arial';
+            ctx.fillStyle = document.body.classList.contains('dark-mode') ? '#fff' : '#333';
+            ctx.font = 'bold 16px Arial';
             ctx.textAlign = 'center';
-            ctx.fillText(label, width / 2, 20);
+            ctx.fillText(label, width / 2, 30);
+            ctx.font = '14px Arial';
             ctx.fillText('Time (Years)', width / 2, height - 10);
             
             ctx.save();
             ctx.rotate(-Math.PI / 2);
             ctx.textAlign = 'center';
-            ctx.fillText('Value', -height / 2, 15);
+            ctx.fillText('Value', -height / 2, 20);
             ctx.restore();
 
             // Add scale
             ctx.textAlign = 'right';
             ctx.fillText(maxValue.toFixed(2), padding - 5, padding);
             ctx.fillText(minValue.toFixed(2), padding - 5, height - padding);
+
+            // Draw grid lines
+            ctx.strokeStyle = document.body.classList.contains('dark-mode') ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+            ctx.lineWidth = 1;
+            for (let i = 1; i < 5; i++) {
+                const y = padding + (height - 2 * padding) * i / 5;
+                ctx.beginPath();
+                ctx.moveTo(padding, y);
+                ctx.lineTo(width - padding, y);
+                ctx.stroke();
+            }
+            for (let i = 1; i < 5; i++) {
+                const x = padding + (width - 2 * padding) * i / 5;
+                ctx.beginPath();
+                ctx.moveTo(x, padding);
+                ctx.lineTo(x, height - padding);
+                ctx.stroke();
+            }
         }
 
         document.getElementById('inputForm').addEventListener('submit', generateGraphs);
