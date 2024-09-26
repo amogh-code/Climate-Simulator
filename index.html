@@ -229,14 +229,14 @@
             let land_temps = [];
             let sea_ice_volumes = [];
 
-            let atmosphere_temp = 15;
-            let ocean_temp = 10;
-            let land_temp = 12;
-            let sea_ice_volume = 100;
+            let atmosphere_temp = 15; // Initial atmospheric temperature
+            let ocean_temp = 10; // Initial ocean temperature
+            let land_temp = 12; // Initial land temperature
+            let sea_ice_volume = 100; // Initial sea ice volume
 
-            const C_ATMOSPHERE = 1;
-            const C_OCEAN = 10;
-            const C_LAND = 5;
+            const C_ATMOSPHERE = 1; // Heat capacity of the atmosphere
+            const C_OCEAN = 10; // Heat capacity of the ocean
+            const C_LAND = 5; // Heat capacity of the land
 
             for (let i = 0; i < TIME_STEPS; i++) {
                 // Heat transfer calculations
