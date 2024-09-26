@@ -256,10 +256,10 @@
                 sea_ice_volumes.push(sea_ice_volume);
             }
 
-            drawGraph('atmosphereTemp', atmosphere_temps, 'Atmospheric Temperature (°C)', 'rgba(255, 99, 132, 0.8)');
-            drawGraph('oceanTemp', ocean_temps, 'Ocean Temperature (°C)', 'rgba(54, 162, 235, 0.8)');
-            drawGraph('landTemp', land_temps, 'Land Temperature (°C)', 'rgba(75, 192, 192, 0.8)');
-            drawGraph('iceVolume', sea_ice_volumes, 'Sea Ice Volume (Million km³)', 'rgba(153, 102, 255, 0.8)');
+            drawGraph('atmosphereTemp', atmosphere_temps, 'Atmospheric Temperature (°C)', 'rgba(255, 99, 132, 0.8)', TIME_STEPS);
+            drawGraph('oceanTemp', ocean_temps, 'Ocean Temperature (°C)', 'rgba(54, 162, 235, 0.8)', TIME_STEPS);
+            drawGraph('landTemp', land_temps, 'Land Temperature (°C)', 'rgba(75, 192, 192, 0.8)', TIME_STEPS);
+            drawGraph('iceVolume', sea_ice_volumes, 'Sea Ice Volume (Million km³)', 'rgba(153, 102, 255, 0.8)', TIME_STEPS);
 
             // Update graph descriptions
             document.getElementById('atmosphereDesc').innerText = "Atmospheric temperature over time based on user inputs.";
@@ -268,7 +268,7 @@
             document.getElementById('iceDesc').innerText = "Sea ice volume changes over time due to melting rates.";
         }
 
-        function drawGraph(canvasId, data, label, color) {
+        function drawGraph(canvasId, data, label, color, timeSteps) {
             const canvas = document.getElementById(canvasId);
             const ctx = canvas.getContext('2d');
             
@@ -282,7 +282,7 @@
 
             ctx.clearRect(0, 0, width, height);
             
-            const minValue = Math.min(...data);
+            const minValue = 0;
             const maxValue = Math.max(...data);
             const valueRange = maxValue - minValue;
 
@@ -363,12 +363,12 @@
             for (let i = 0; i <= 5; i++) {
                 const x = padding + (width - 2 * padding) * i / 5;
                 const y = height - padding + 15;
-                ctx.fillText((i * TIME_STEPS / 5).toFixed(0), x, y);
+                ctx.fillText((i * timeSteps / 5).toFixed(0), x, y);
             }
             ctx.textAlign = 'right';
             for (let i = 0; i <= 5; i++) {
                 const y = padding + (height - 2 * padding) * i / 5;
-                const value = maxValue - (valueRange * i / 5);
+                const value = maxValue * i / 5;
                 ctx.fillText(value.toFixed(2), padding - 10, y + 3);
             }
         }
