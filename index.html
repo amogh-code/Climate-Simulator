@@ -4,190 +4,228 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Climate Simulator</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+            transition: background-color 0.5s, color 0.5s;
+            background-color: #ffffff;
+            color: #000000;
             margin: 0;
-            padding: 20px;
-            transition: background-color 0.3s, color 0.3s;
+            padding: 0;
         }
+
         .dark-mode {
             background-color: #121212;
             color: #ffffff;
         }
-        h1, h2, h3 {
+
+        h1, h2 {
             text-align: center;
         }
-        #device-menu {
-            display: flex;
-            justify-content: flex-end;
-            margin-bottom: 10px;
+
+        #menu {
+            margin: 20px;
+            text-align: center;
         }
-        .menu-btn {
-            padding: 10px;
-            cursor: pointer;
-            border: none;
-            background-color: #007bff;
-            color: white;
-            border-radius: 5px;
-        }
-        .collapsible {
-            display: none;
-            flex-direction: column;
-            position: absolute;
-            right: 20px;
-            z-index: 100;
-            background-color: white;
-            border-radius: 5px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        .collapsible .device-option {
-            padding: 10px;
-            cursor: pointer;
-        }
-        .collapsible .device-option:hover {
-            background-color: #f0f0f0;
-        }
-        .form-container {
-            margin: 20px 0;
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            background-color: white;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-        .form-slider {
-            width: 100%;
-        }
-        .form-slider-label {
-            display: inline-block;
-            margin-bottom: 5px;
-        }
-        .graph-container {
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            padding: 10px;
-            margin: 20px 0;
-        }
-        #darkModeToggle {
+
+        #settings {
             position: absolute;
             top: 20px;
-            right: 100px;
-            cursor: pointer;
-            background-color: #007bff;
+            right: 20px;
+            z-index: 10;
+        }
+
+        .collapsible {
+            background-color: #007BFF;
             color: white;
+            cursor: pointer;
             padding: 10px;
+            width: 100%;
             border: none;
+            text-align: left;
+            outline: none;
+            font-size: 15px;
             border-radius: 5px;
         }
-        .formula {
-            margin: 10px 0;
-            font-size: 14px;
-            color: #333;
+
+        .active, .collapsible:hover {
+            background-color: #0056b3;
         }
-        .interpretation {
-            margin: 10px 0;
-            font-size: 14px;
+
+        .content {
+            padding: 0 18px;
+            display: none;
+            overflow: hidden;
+            background-color: #f1f1f1;
+            margin-top: 5px;
+            border-radius: 5px;
+        }
+
+        label {
+            display: inline-block;
+            width: 300px;
+            margin-bottom: 10px;
+        }
+
+        input[type=number], input[type=range] {
+            margin-bottom: 10px;
+            width: 100%;
+        }
+
+        .graph-container {
+            width: 90%;
+            margin: 0 auto;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .hidden {
+            display: none;
         }
     </style>
 </head>
 <body>
-    <div id="device-menu">
-        <button class="menu-btn" onclick="toggleMenu()">Device Options <i class="fas fa-cog"></i></button>
-        <div class="collapsible" id="deviceOptions">
-            <div class="device-option" onclick="setDevice('desktop')">Desktop</div>
-            <div class="device-option" onclick="setDevice('mobile')">Mobile</div>
+    <div id="settings">
+        <button class="collapsible">Settings</button>
+        <div class="content">
+            <label for="darkModeToggle">Dark Mode</label>
+            <input type="checkbox" id="darkModeToggle">
+            <label for="deviceSelect">Select Device:</label>
+            <select id="deviceSelect">
+                <option value="desktop">Desktop</option>
+                <option value="mobile">Mobile</option>
+            </select>
         </div>
     </div>
-    
-    <button id="darkModeToggle" onclick="toggleDarkMode()">Toggle Dark Mode</button>
 
-    <h1 style="font-size: 18px;">|| Jai Guru Dev ||</h1>
+    <h1>|| Jai Guru Dev ||</h1>
     <h2>Anweshna 2025</h2>
-    <h3>Done by Advaith, Hariprasad, and Amogh from Class 12A SSRVM North Bangalore</h3>
+    <p style="text-align:center;">Done by Advaith, Hariprasad, and Amogh from Class 12 A, SSRVM North Bangalore</p>
     <h2>Climate Simulator</h2>
-    <p>A tool to visualize the impact of various climate parameters over time.</p>
+    <div id="menu">
+        <label for="A_OCEAN">Ocean Heat Absorption Coefficient (A_OCEAN):</label>
+        <input type="range" id="A_OCEAN" name="A_OCEAN" min="0" max="1" value="0.2" step="0.01">
+        <span id="A_OCEAN_value">0.20</span>
+        <br>
 
-    <div class="form-container">
-        <form id="inputForm">
-            <label for="A_OCEAN" class="form-slider-label">Ocean Heat Absorption Coefficient (A_OCEAN):</label>
-            <input type="range" class="form-slider" id="A_OCEAN" name="A_OCEAN" min="0" max="1" step="0.01" value="0.2" oninput="this.nextElementSibling.value = this.value">
-            <output>0.2</output><br>
+        <label for="A_LAND">Land Heat Absorption Coefficient (A_LAND):</label>
+        <input type="range" id="A_LAND" name="A_LAND" min="0" max="1" value="0.3" step="0.01">
+        <span id="A_LAND_value">0.30</span>
+        <br>
 
-            <label for="A_LAND" class="form-slider-label">Land Heat Absorption Coefficient (A_LAND):</label>
-            <input type="range" class="form-slider" id="A_LAND" name="A_LAND" min="0" max="1" step="0.01" value="0.3" oninput="this.nextElementSibling.value = this.value">
-            <output>0.3</output><br>
+        <label for="A_ICE">Sea Ice Heat Absorption Coefficient (A_ICE):</label>
+        <input type="range" id="A_ICE" name="A_ICE" min="0" max="1" value="0.1" step="0.01">
+        <span id="A_ICE_value">0.10</span>
+        <br>
 
-            <label for="A_ICE" class="form-slider-label">Sea Ice Heat Absorption Coefficient (A_ICE):</label>
-            <input type="range" class="form-slider" id="A_ICE" name="A_ICE" min="0" max="1" step="0.01" value="0.1" oninput="this.nextElementSibling.value = this.value">
-            <output>0.1</output><br>
+        <label for="ICE_MELT_RATE">Ice Melt Rate:</label>
+        <input type="range" id="ICE_MELT_RATE" name="ICE_MELT_RATE" min="0" max="1" value="0.05" step="0.01">
+        <span id="ICE_MELT_RATE_value">0.05</span>
+        <br>
 
-            <label for="ICE_MELT_RATE" class="form-slider-label">Ice Melt Rate:</label>
-            <input type="range" class="form-slider" id="ICE_MELT_RATE" name="ICE_MELT_RATE" min="0" max="1" step="0.01" value="0.05" oninput="this.nextElementSibling.value = this.value">
-            <output>0.05</output><br>
+        <label for="TIME_STEPS">Time Steps (Years):</label>
+        <input type="number" id="TIME_STEPS" name="TIME_STEPS" value="100" required>
+        <br>
 
-            <label for="TIME_STEPS" class="form-slider-label">Time Steps (Years):</label>
-            <input type="range" class="form-slider" id="TIME_STEPS" name="TIME_STEPS" min="1" max="1000" value="100" oninput="this.nextElementSibling.value = this.value">
-            <output>100</output><br>
+        <label for="wind_magnitude">Wind Magnitude (m/s):</label>
+        <input type="range" id="wind_magnitude" name="wind_magnitude" min="0" max="20" value="5" required>
+        <span id="wind_magnitude_value">5.00</span>
+        <br>
 
-            <label for="wind_magnitude" class="form-slider-label">Wind Magnitude (m/s):</label>
-            <input type="range" class="form-slider" id="wind_magnitude" name="wind_magnitude" min="0" max="20" step="0.1" value="5" oninput="this.nextElementSibling.value = this.value">
-            <output>5</output><br>
+        <label for="greenhouse_gases">Greenhouse Gases (normalized):</label>
+        <input type="range" id="greenhouse_gases" name="greenhouse_gases" min="0" max="5" value="1" step="0.01">
+        <span id="greenhouse_gases_value">1.00</span>
+        <br>
 
-            <label for="greenhouse_gases" class="form-slider-label">Greenhouse Gases (normalized):</label>
-            <input type="range" class="form-slider" id="greenhouse_gases" name="greenhouse_gases" min="0" max="10" step="0.01" value="1" oninput="this.nextElementSibling.value = this.value">
-            <output>1</output><br>
-
-            <button type="button" onclick="generateGraphs()">Generate Graphs</button>
-        </form>
+        <button id="generateButton">Generate Graphs</button>
     </div>
 
     <h2>Graphs</h2>
-    <div class="graph-container" id="atmosphereTemp"></div>
-    <div class="formula">Formula: \( T_a = T_{a_0} + k \times GHG \times t \) <br> Interpretation: Shows the increase in atmospheric temperature due to greenhouse gas concentration.</div>
+    <div class="graph-container">
+        <div id="atmosphereTemp"></div>
+        <p>Atmosphere Temperature Over Time: The graph shows the temperature change in the atmosphere due to various heat absorption coefficients and wind effects.</p>
+        <p><strong>Formula:</strong> \( T_{atmosphere} = T_{initial} + \text{change due to wind and other factors} \)</p>
 
-    <div class="graph-container" id="oceanTemp"></div>
-    <div class="formula">Formula: \( T_o = T_{o_0} + k_o \times A_OCEAN \times t + k_{ghg} \times GHG \) <br> Interpretation: Displays the warming of ocean temperature based on heat absorption.</div>
+        <div id="oceanTemp"></div>
+        <p>Ocean Temperature Over Time: Displays how ocean temperatures rise due to heat transfer from the atmosphere and land.</p>
+        <p><strong>Formula:</strong> \( T_{ocean} = T_{initial} + \text{heat from atmosphere and land} \)</p>
 
-    <div class="graph-container" id="landTemp"></div>
-    <div class="formula">Formula: \( T_l = T_{l_0} + k_l \times A_LAND \times t \) <br> Interpretation: Indicates the warming trend on land due to heat absorption.</div>
+        <div id="landTemp"></div>
+        <p>Land Temperature Over Time: Represents the land temperature changes influenced by ocean heat and other environmental factors.</p>
+        <p><strong>Formula:</strong> \( T_{land} = T_{initial} + \text{heat from ocean} \)</p>
 
-    <div class="graph-container" id="iceVolume"></div>
-    <div class="formula">Formula: \( V_i = V_{i_0} - ICE\_MELT\_RATE \times t \) <br> Interpretation: Shows the decline in ice volume over time due to melting.</div>
+        <div id="iceVolume"></div>
+        <p>Sea Ice Volume Over Time: Illustrates how sea ice volume decreases due to rising ocean temperatures.</p>
+        <p><strong>Formula:</strong> \( V_{ice} = V_{initial} - \text{melted ice volume} \)</p>
+    </div>
+
+    <footer>
+        <p>Climate Simulator © 2025</p>
+        <p id="dateTime"></p>
+    </footer>
 
     <script>
-        let isDarkMode = false;
-
-        function toggleDarkMode() {
-            isDarkMode = !isDarkMode;
+        // Dark mode toggle
+        document.getElementById('darkModeToggle').addEventListener('change', function() {
             document.body.classList.toggle('dark-mode');
-            document.querySelectorAll('.graph-container').forEach(graph => {
-                graph.style.backgroundColor = isDarkMode ? '#2c2c2c' : '#ffffff';
-                graph.style.color = isDarkMode ? '#ffffff' : '#000000';
+            updateGraphColors();
+        });
+
+        // Update the graph colors
+        function updateGraphColors() {
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            const graphBackgroundColor = isDarkMode ? '#121212' : '#ffffff';
+            const textColor = isDarkMode ? '#ffffff' : '#000000';
+            
+            Plotly.restyle('atmosphereTemp', {
+                'marker.color': textColor
+            });
+            Plotly.restyle('oceanTemp', {
+                'marker.color': textColor
+            });
+            Plotly.restyle('landTemp', {
+                'marker.color': textColor
+            });
+            Plotly.restyle('iceVolume', {
+                'marker.color': textColor
             });
         }
 
-        function toggleMenu() {
-            const menu = document.getElementById('deviceOptions');
-            menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
+        // Collapsible settings box
+        var coll = document.getElementsByClassName("collapsible");
+        for (var i = 0; i < coll.length; i++) {
+            coll[i].addEventListener("click", function() {
+                this.classList.toggle("active");
+                var content = this.nextElementSibling;
+                if (content.style.display === "block") {
+                    content.style.display = "none";
+                } else {
+                    content.style.display = "block";
+                }
+            });
         }
 
-        function setDevice(device) {
-            const body = document.body;
-            if (device === 'mobile') {
-                body.style.fontSize = '12px'; // Adjust font size for mobile
-                body.style.width = '100%';
-                alert("Mobile view selected! Some UI adjustments may apply.");
-            } else {
-                body.style.fontSize = '16px'; // Default font size for desktop
-            }
-            toggleMenu();
+        // Update the slider values
+        function updateSliderValue(sliderId, valueId) {
+            const slider = document.getElementById(sliderId);
+            const valueDisplay = document.getElementById(valueId);
+            valueDisplay.textContent = slider.value;
         }
 
-        function generateGraphs() {
+        // Attach input event listeners to sliders
+        document.querySelectorAll('input[type=range]').forEach(slider => {
+            slider.addEventListener('input', () => {
+                updateSliderValue(slider.id, slider.id + '_value');
+            });
+        });
+
+        // Graph generation logic
+        document.getElementById('generateButton').addEventListener('click', function() {
             const A_OCEAN = parseFloat(document.getElementById('A_OCEAN').value);
             const A_LAND = parseFloat(document.getElementById('A_LAND').value);
             const A_ICE = parseFloat(document.getElementById('A_ICE').value);
@@ -196,78 +234,57 @@
             const wind_magnitude = parseFloat(document.getElementById('wind_magnitude').value);
             const greenhouse_gases = parseFloat(document.getElementById('greenhouse_gases').value);
 
-            let atmosphereTemp = [];
-            let oceanTemp = [];
-            let landTemp = [];
-            let iceVolume = [];
+            const time = Array.from({length: TIME_STEPS}, (_, i) => i);
+            const atmosphereTemp = time.map(t => A_OCEAN * t + wind_magnitude * Math.random());
+            const oceanTemp = time.map(t => A_LAND * t + greenhouse_gases * Math.random());
+            const landTemp = time.map(t => A_ICE * t + ICE_MELT_RATE * Math.random());
+            const iceVolume = time.map(t => 1 - (ICE_MELT_RATE * t / 100));
 
-            // Simulation logic for each year
-            for (let year = 0; year < TIME_STEPS; year++) {
-                atmosphereTemp.push(15 + (0.1 * greenhouse_gases * year)); // Atmospheric heating
-                oceanTemp.push(15 + (A_OCEAN * year * 0.05) + (0.1 * greenhouse_gases)); // Ocean heating with GHG
-                landTemp.push(20 + (A_LAND * year * 0.2)); // Land heating with ice influence
-                iceVolume.push(Math.max(0, 100 - (ICE_MELT_RATE * year))); // Ice melting over years
-            }
+            Plotly.newPlot('atmosphereTemp', [{
+                x: time,
+                y: atmosphereTemp,
+                type: 'scatter',
+                mode: 'lines+markers',
+                name: 'Atmosphere Temperature'
+            }]);
 
-            const traces = [
-                {
-                    x: Array.from({ length: TIME_STEPS }, (_, i) => i + 1),
-                    y: atmosphereTemp,
-                    mode: 'lines+markers',
-                    name: 'Atmosphere Temperature',
-                    line: { color: '#ff5733' }
-                },
-                {
-                    x: Array.from({ length: TIME_STEPS }, (_, i) => i + 1),
-                    y: oceanTemp,
-                    mode: 'lines+markers',
-                    name: 'Ocean Temperature',
-                    line: { color: '#33c1ff' }
-                },
-                {
-                    x: Array.from({ length: TIME_STEPS }, (_, i) => i + 1),
-                    y: landTemp,
-                    mode: 'lines+markers',
-                    name: 'Land Temperature',
-                    line: { color: '#ff33c1' }
-                },
-                {
-                    x: Array.from({ length: TIME_STEPS }, (_, i) => i + 1),
-                    y: iceVolume,
-                    mode: 'lines+markers',
-                    name: 'Ice Volume',
-                    line: { color: '#33ff57' }
-                }
-            ];
+            Plotly.newPlot('oceanTemp', [{
+                x: time,
+                y: oceanTemp,
+                type: 'scatter',
+                mode: 'lines+markers',
+                name: 'Ocean Temperature'
+            }]);
 
-            const layout = {
-                title: 'Climate Simulation Results',
-                xaxis: {
-                    title: 'Years',
-                },
-                yaxis: {
-                    title: 'Temperature (°C) / Volume (km³)',
-                    range: [0, 120], // Adjust range as necessary
-                },
-                showlegend: true,
-                plot_bgcolor: document.body.classList.contains('dark-mode') ? '#1e1e1e' : '#ffffff',
-                paper_bgcolor: document.body.classList.contains('dark-mode') ? '#1e1e1e' : '#ffffff',
-                font: {
-                    color: document.body.classList.contains('dark-mode') ? '#ffffff' : '#000000',
-                }
-            };
+            Plotly.newPlot('landTemp', [{
+                x: time,
+                y: landTemp,
+                type: 'scatter',
+                mode: 'lines+markers',
+                name: 'Land Temperature'
+            }]);
 
-            // Clear previous plots
-            document.getElementById('atmosphereTemp').innerHTML = '';
-            document.getElementById('oceanTemp').innerHTML = '';
-            document.getElementById('landTemp').innerHTML = '';
-            document.getElementById('iceVolume').innerHTML = '';
+            Plotly.newPlot('iceVolume', [{
+                x: time,
+                y: iceVolume,
+                type: 'scatter',
+                mode: 'lines+markers',
+                name: 'Sea Ice Volume'
+            }]);
 
-            Plotly.newPlot('atmosphereTemp', [traces[0]], layout);
-            Plotly.newPlot('oceanTemp', [traces[1]], layout);
-            Plotly.newPlot('landTemp', [traces[2]], layout);
-            Plotly.newPlot('iceVolume', [traces[3]], layout);
+            updateGraphColors(); // Update colors based on the dark mode
+        });
+
+        // Update the date and time
+        function updateDateTime() {
+            const now = new Date();
+            const dateTimeString = now.toLocaleString();
+            document.getElementById("dateTime").innerText = dateTimeString;
         }
+
+        // Update the date and time every second
+        setInterval(updateDateTime, 1000);
+        updateDateTime(); // Initial call
     </script>
 </body>
 </html>
