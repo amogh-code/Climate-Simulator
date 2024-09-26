@@ -83,6 +83,15 @@
             border: none;
             border-radius: 5px;
         }
+        .formula {
+            margin: 10px 0;
+            font-size: 14px;
+            color: #333;
+        }
+        .interpretation {
+            margin: 10px 0;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
@@ -138,38 +147,44 @@
 
     <h2>Graphs</h2>
     <div class="graph-container" id="atmosphereTemp"></div>
-    <p>Atmosphere Temperature represents the heat content of the atmosphere, affected by various factors including greenhouse gases.</p>
+    <div class="formula">Formula: \( T_a = T_{a_0} + k \times GHG \times t \) <br> Interpretation: Shows the increase in atmospheric temperature due to greenhouse gas concentration.</div>
+
     <div class="graph-container" id="oceanTemp"></div>
-    <p>Ocean Temperature indicates the heat absorbed by the oceans, which plays a significant role in climate dynamics.</p>
+    <div class="formula">Formula: \( T_o = T_{o_0} + k_o \times A_OCEAN \times t + k_{ghg} \times GHG \) <br> Interpretation: Displays the warming of ocean temperature based on heat absorption.</div>
+
     <div class="graph-container" id="landTemp"></div>
-    <p>Land Temperature shows the heat content of land masses and is influenced by solar radiation and heat absorption coefficients.</p>
+    <div class="formula">Formula: \( T_l = T_{l_0} + k_l \times A_LAND \times t \) <br> Interpretation: Indicates the warming trend on land due to heat absorption.</div>
+
     <div class="graph-container" id="iceVolume"></div>
-    <p>Sea Ice Volume indicates the amount of ice in the oceans, which is critical for understanding climate change.</p>
+    <div class="formula">Formula: \( V_i = V_{i_0} - ICE\_MELT\_RATE \times t \) <br> Interpretation: Shows the decline in ice volume over time due to melting.</div>
 
     <script>
+        let isDarkMode = false;
+
+        function toggleDarkMode() {
+            isDarkMode = !isDarkMode;
+            document.body.classList.toggle('dark-mode');
+            document.querySelectorAll('.graph-container').forEach(graph => {
+                graph.style.backgroundColor = isDarkMode ? '#2c2c2c' : '#ffffff';
+                graph.style.color = isDarkMode ? '#ffffff' : '#000000';
+            });
+        }
+
         function toggleMenu() {
             const menu = document.getElementById('deviceOptions');
             menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
         }
 
         function setDevice(device) {
-            alert(`You selected ${device} mode. Adjusting styles accordingly.`);
-            const isMobile = device === 'mobile';
-            if (isMobile) {
-                document.body.style.fontSize = '14px';
+            const body = document.body;
+            if (device === 'mobile') {
+                body.style.fontSize = '12px'; // Adjust font size for mobile
+                body.style.width = '100%';
+                alert("Mobile view selected! Some UI adjustments may apply.");
             } else {
-                document.body.style.fontSize = '16px';
+                body.style.fontSize = '16px'; // Default font size for desktop
             }
             toggleMenu();
-        }
-
-        function toggleDarkMode() {
-            document.body.classList.toggle('dark-mode');
-            const graphs = document.querySelectorAll('.graph-container');
-            graphs.forEach(graph => {
-                graph.style.backgroundColor = document.body.classList.contains('dark-mode') ? '#1e1e1e' : '#ffffff';
-                graph.style.color = document.body.classList.contains('dark-mode') ? '#ffffff' : '#000000';
-            });
         }
 
         function generateGraphs() {
@@ -188,10 +203,10 @@
 
             // Simulation logic for each year
             for (let year = 0; year < TIME_STEPS; year++) {
-                atmosphereTemp.push(15 + A_OCEAN * greenhouse_gases * year * 0.1); // Atmospheric heating
-                oceanTemp.push(15 + A_LAND * year * 0.05 + (0.1 * greenhouse_gases)); // Ocean heating with GHG
-                landTemp.push(20 + A_ICE * year * 0.2); // Land heating with ice influence
-                iceVolume.push(Math.max(0, 100 - ICE_MELT_RATE * year)); // Ice melting over years
+                atmosphereTemp.push(15 + (0.1 * greenhouse_gases * year)); // Atmospheric heating
+                oceanTemp.push(15 + (A_OCEAN * year * 0.05) + (0.1 * greenhouse_gases)); // Ocean heating with GHG
+                landTemp.push(20 + (A_LAND * year * 0.2)); // Land heating with ice influence
+                iceVolume.push(Math.max(0, 100 - (ICE_MELT_RATE * year))); // Ice melting over years
             }
 
             const traces = [
@@ -241,6 +256,12 @@
                     color: document.body.classList.contains('dark-mode') ? '#ffffff' : '#000000',
                 }
             };
+
+            // Clear previous plots
+            document.getElementById('atmosphereTemp').innerHTML = '';
+            document.getElementById('oceanTemp').innerHTML = '';
+            document.getElementById('landTemp').innerHTML = '';
+            document.getElementById('iceVolume').innerHTML = '';
 
             Plotly.newPlot('atmosphereTemp', [traces[0]], layout);
             Plotly.newPlot('oceanTemp', [traces[1]], layout);
